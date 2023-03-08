@@ -3,6 +3,8 @@ package com.metechvn.logging;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -10,8 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.http.HttpMethod;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -126,8 +127,8 @@ public class LoggingServiceImpl implements LoggingService {
 
     private boolean shouldLogEndPoint(String endpoint) {
         return Arrays.stream(skipPatterns.split("\\|"))
-                     .map(Pattern::compile)
-                     .noneMatch(pattern -> pattern.matcher(endpoint).find());
+                .map(Pattern::compile)
+                .noneMatch(pattern -> pattern.matcher(endpoint).find());
     }
 
     private boolean shouldLogMethod(String method) {

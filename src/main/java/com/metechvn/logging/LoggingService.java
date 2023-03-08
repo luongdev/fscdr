@@ -1,7 +1,8 @@
 package com.metechvn.logging;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface LoggingService {
     void logRequest(HttpServletRequest request, Object body);
