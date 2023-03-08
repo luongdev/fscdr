@@ -1,0 +1,39 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.1'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group 'com.metechvn'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    //Swagger
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+    //jaeger
+    implementation 'io.opentracing.contrib:opentracing-spring-jaeger-cloud-starter:3.3.1'
+
+    // feign
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.3'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    runtimeOnly 'org.postgresql:postgresql'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '7.2'
+    implementation group: 'org.json', name: 'json', version: '20220320'
+}
+
+test {
+    useJUnitPlatform()
+}

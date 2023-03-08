@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+*.idea
+*._*
+*.DS_Store
+*.iml
+*.settings
+.gradle
+gradle
+gradlew
+gradlew.bat
+build
