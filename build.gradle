@@ -17,12 +17,13 @@ repositories {
 dependencies {
 
     //Swagger
-    implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.14'
     //jaeger
     implementation 'io.opentracing.contrib:opentracing-spring-jaeger-cloud-starter:3.3.1'
 
     // feign
-    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.3'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.0.1'
+
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
@@ -30,6 +31,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
     implementation group: 'org.elasticsearch', name: 'elasticsearch', version: '7.17.9'
     implementation group: 'org.springframework.data', name: 'spring-data-elasticsearch', version: '5.0.3'
+
+    // kafka
+    implementation group: 'org.springframework.kafka', name: 'spring-kafka', version: '3.0.4'
+
 
     runtimeOnly 'org.postgresql:postgresql'
     compileOnly 'org.projectlombok:lombok'
