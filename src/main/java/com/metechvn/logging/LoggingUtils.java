@@ -1,7 +1,8 @@
 package com.metechvn.logging;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -55,14 +56,14 @@ public class LoggingUtils {
         String[] split = requestURI.split("\\?");
         if (split.length > 1) {
             String reqPath = IntStream.range(1, split.length)
-                                      .boxed()
-                                      .map(i -> split[i])
-                                      .collect(Collectors.joining("?"));
+                    .boxed()
+                    .map(i -> split[i])
+                    .collect(Collectors.joining("?"));
             String[] pathSplit = reqPath.split("&");
             results = Arrays.stream(pathSplit)
-                            .map(ps -> ps.split("="))
-                            .filter(sp -> sp.length == 2)
-                            .collect(Collectors.toMap(sp -> sp[0], sp -> sp[1]));
+                    .map(ps -> ps.split("="))
+                    .filter(sp -> sp.length == 2)
+                    .collect(Collectors.toMap(sp -> sp[0], sp -> sp[1]));
         }
         return results;
     }
