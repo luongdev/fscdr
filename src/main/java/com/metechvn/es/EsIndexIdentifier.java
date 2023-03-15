@@ -1,6 +1,6 @@
 package com.metechvn.es;
 
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 
 public class EsIndexIdentifier {
 
@@ -21,7 +21,7 @@ public class EsIndexIdentifier {
 
     public String name() {
         return String.format("%s%s",
-                StringUtils.isEmpty(this.prefix) ? "" : String.format("%s_", this.prefix),
+                !StringUtils.hasText(this.prefix) ? "" : String.format("%s_", this.prefix),
                 this.indexName
         );
     }
