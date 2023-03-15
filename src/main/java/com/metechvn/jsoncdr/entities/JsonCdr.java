@@ -19,12 +19,6 @@ import java.util.Set;
 @NoArgsConstructor
 public class JsonCdr extends DynamicIndex implements Map<String, Object> {
 
-    @Field(type = FieldType.Keyword, name = "global_call_id")
-    private String globalCallId;
-
-    @Field(type = FieldType.Long, name = "started_epoch")
-    private long startedEpoch;
-
     @Field(type = FieldType.Object, name = "properties")
     private final Map<String, Object> json = new HashMap<>();
 

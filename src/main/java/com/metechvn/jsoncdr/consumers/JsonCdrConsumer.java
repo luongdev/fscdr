@@ -53,9 +53,16 @@ public class JsonCdrConsumer {
                 jsonCdr.put(Utils.camelCaseToUnderscore(entry.getKey()), entry.getValue());
 
             jsonCdr.putAll(variables);
-            jsonCdr.put("start_epoch", Long.parseLong(String.valueOf(variables.get("start_epoch"))));
+            long startEpoch;
+            try {
+                startEpoch = Long.parseLong(String.valueOf(variables.get("start_epoch")));
+            } catch (Exception ignored) {
+                startEpoch = System.currentTimeMillis() / 1000;
+            }
 
-            final var monthStr = Utils.formatDate(new Date(jsonCdr.getStartedEpoch() * 1000), "yyyy_MM");
+            jsonCdr.put("start_epoch", startEpoch);
+
+            final var monthStr = Utils.formatDate(new Date(startEpoch * 1000), "yyyy_MM");
             identifier.setIndexName("json_cdr").setPrefix(monthStr);
 
             jsonCdrEsRepository.save(jsonCdr);
