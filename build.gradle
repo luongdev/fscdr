@@ -12,9 +12,15 @@ targetCompatibility = '17'
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://packages.confluent.io/maven/"
+    }
 }
 
 dependencies {
+
+    // External libs
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     //Swagger
     implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.14'
@@ -33,6 +39,7 @@ dependencies {
     implementation group: 'org.springframework.data', name: 'spring-data-elasticsearch', version: '5.0.3'
 
     // kafka
+    implementation group: 'io.confluent', name: 'kafka-json-schema-serializer', version: '7.3.2'
     implementation group: 'org.springframework.kafka', name: 'spring-kafka', version: '3.0.4'
 
 

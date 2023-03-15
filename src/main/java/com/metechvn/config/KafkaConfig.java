@@ -1,5 +1,9 @@
 package com.metechvn.config;
 
+import io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer;
+import io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializer;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,12 +23,17 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZE
 @Configuration
 public class KafkaConfig {
 
+    private final String schemaRegistryUrl;
     private final Map<String, Object> producerProperties;
     private final Map<String, Object> consumerProperties;
 
-    public KafkaConfig(KafkaProperties kafkaProperties) {
+    public KafkaConfig(
+            KafkaProperties kafkaProperties,
+            @Value("${spring.kafka.properties.schema.registry.url:}") String schemaRegistryUrl) {
         this.producerProperties = kafkaProperties.buildProducerProperties();
         this.consumerProperties = kafkaProperties.buildConsumerProperties();
+
+        this.schemaRegistryUrl = schemaRegistryUrl;
     }
 
     @Bean
@@ -43,6 +52,11 @@ public class KafkaConfig {
         properties.put(KEY_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
         properties.put(VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
 
+        if (StringUtils.isNotEmpty(schemaRegistryUrl)) {
+            properties.put(KEY_SERIALIZER_CLASS_CONFIG, KafkaJsonSchemaSerializer.class.getName());
+            properties.put(VALUE_SERIALIZER_CLASS_CONFIG, KafkaJsonSchemaSerializer.class.getName());
+        }
+
         return new DefaultKafkaProducerFactory<>(properties);
     }
 
@@ -57,6 +71,11 @@ public class KafkaConfig {
         properties.put(KEY_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class.getName());
         properties.put(VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class.getName());
 
+        if (StringUtils.isNotEmpty(schemaRegistryUrl)) {
+            properties.put(KEY_SERIALIZER_CLASS_CONFIG, KafkaJsonSchemaDeserializer.class.getName());
+            properties.put(VALUE_SERIALIZER_CLASS_CONFIG, KafkaJsonSchemaDeserializer.class.getName());
+        }
+        
         return new DefaultKafkaConsumerFactory<>(properties);
     }
 
