@@ -17,20 +17,18 @@ repositories {
     }
 }
 
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'com.metechvn.Application'
+        )
+    }
+}
+
 dependencies {
 
     // External libs
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    //Swagger
-    implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.14'
-    //jaeger
-    implementation 'io.opentracing.contrib:opentracing-spring-jaeger-cloud-starter:3.3.1'
-
-    // feign
-    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.0.1'
-
-
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     // elastic
@@ -43,10 +41,10 @@ dependencies {
     implementation group: 'org.springframework.kafka', name: 'spring-kafka', version: '3.0.4'
 
 
-    runtimeOnly 'org.postgresql:postgresql'
+//    runtimeOnly 'org.postgresql:postgresql'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '7.2'
     implementation group: 'org.json', name: 'json', version: '20220320'

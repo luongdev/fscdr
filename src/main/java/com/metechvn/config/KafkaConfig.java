@@ -2,7 +2,6 @@ package com.metechvn.config;
 
 import io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer;
 import io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializer;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +10,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
@@ -52,7 +52,7 @@ public class KafkaConfig {
         properties.put(KEY_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
         properties.put(VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
 
-        if (StringUtils.isNotEmpty(schemaRegistryUrl)) {
+        if (StringUtils.hasText(schemaRegistryUrl)) {
             properties.put(KEY_SERIALIZER_CLASS_CONFIG, KafkaJsonSchemaSerializer.class.getName());
             properties.put(VALUE_SERIALIZER_CLASS_CONFIG, KafkaJsonSchemaSerializer.class.getName());
         }
@@ -71,11 +71,11 @@ public class KafkaConfig {
         properties.put(KEY_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class.getName());
         properties.put(VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class.getName());
 
-        if (StringUtils.isNotEmpty(schemaRegistryUrl)) {
-            properties.put(KEY_SERIALIZER_CLASS_CONFIG, KafkaJsonSchemaDeserializer.class.getName());
-            properties.put(VALUE_SERIALIZER_CLASS_CONFIG, KafkaJsonSchemaDeserializer.class.getName());
+        if (StringUtils.hasText(schemaRegistryUrl)) {
+            properties.put(KEY_DESERIALIZER_CLASS_CONFIG, KafkaJsonSchemaDeserializer.class.getName());
+            properties.put(VALUE_DESERIALIZER_CLASS_CONFIG, KafkaJsonSchemaDeserializer.class.getName());
         }
-        
+
         return new DefaultKafkaConsumerFactory<>(properties);
     }
 

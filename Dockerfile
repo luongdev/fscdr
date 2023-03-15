@@ -1,22 +1,38 @@
-FROM gradle:jdk11-alpine AS build
-ENV HOME=/app
-WORKDIR $HOME
-
-COPY . .
-RUN ["gradle", "bootJar"]
-
+#FROM gradle:jdk17-alpine AS build
+#ENV HOME=/app
+#WORKDIR $HOME
+#
+#COPY . .
+#RUN ["gradle", "bootJar"]
+#
 #
 # Package stage
 #
-FROM gradle:jdk11-alpine
+FROM gradle:jdk17-alpine
 ENV HOME=/app
 WORKDIR $HOME
 
 ENV TZ=Asia/Ho_Chi_Minh
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-COPY --from=build $HOME/build/libs/*.jar $HOME/app.jar
+COPY ./build/libs/*.jar $HOME/app.jar
+
+ENV ELASTICSEARCH_URIS "http://localost:9200"
+ENV ELASTICSEARCH_USER "elastic"
+ENV ELASTICSEARCH_PASSWORD ""
+ENV ELASTICSEARCH_DEFAULT_INDEX "default_index"
+
+ENV KAFKA_BOOTSTRAP_SERVER "localhost:9092"
+ENV KAFKA_INSTANCE_ID "FS-CDR"
+ENV KAFKA_SECURITY_PROTOCOL "PLAINTEXT"
+ENV KAFKA_SECURITY_MECHANISM "PLAIN"
+ENV KAFKA_SECURITY_LOGIN_MODULE ""
+ENV KAFKA_SECURITY_USERNAME ""
+ENV KAFKA_SECURITY_PASSWORD ""
+
+ENV SCHEMA_REGISTRY_URL "http://localhost:8081"
+ENV SCHEMA_REGISTRY_CRED_SOURCE "USER_INFO"
+ENV SCHEMA_REGISTRY_USER ""
+ENV SCHEMA_REGISTRY_PASSWORD ""
 
 # Run app from jar file
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
-EXPOSE 8080
