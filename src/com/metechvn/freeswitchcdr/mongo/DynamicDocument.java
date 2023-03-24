@@ -1,6 +1,7 @@
 package com.metechvn.freeswitchcdr.mongo;
 
 import org.bson.codecs.pojo.annotations.BsonId;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.StringUtils;
 
@@ -9,8 +10,15 @@ import java.util.UUID;
 @Document(collection = "#{@identifier.name()}")
 public class DynamicDocument extends org.bson.Document {
 
+    @Id
     @BsonId
     private UUID id;
+
+    public DynamicDocument() {
+        super("_id", UUID.randomUUID());
+
+        this.id = get("_id", UUID.class);
+    }
 
     public DynamicDocument put(String key, Object value) {
         if (StringUtils.hasText(key)) super.put(key, value);
@@ -26,7 +34,4 @@ public class DynamicDocument extends org.bson.Document {
         this.id = id;
     }
 
-    public DynamicDocument() {
-        this.id = UUID.randomUUID();
-    }
 }
