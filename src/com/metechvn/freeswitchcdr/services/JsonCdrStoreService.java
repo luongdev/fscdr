@@ -66,6 +66,12 @@ public class JsonCdrStoreService {
             identifier.prefix(collPrefix).collectionName("json_cdr");
 
             dynamicDocumentRepository.save(doc);
+            log.debug(
+                    "Saved cdr: {} global call id: {} to mongo collection {}",
+                    msg.getCdrId(),
+                    msg.getGlobalCallId(),
+                    identifier.name()
+            );
         } catch (Exception e) {
             log.error(
                     "Cannot store json cdr: {} global call id: {}. Error {}",

@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metechvn.freeswitchcdr.messages.JsonCdrMessage;
 import com.metechvn.freeswitchcdr.services.JsonCdrStoreService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +23,8 @@ import java.util.Comparator;
 import java.util.Map;
 
 @Component
-@ConditionalOnProperty(value = "app.kafka.enabled", havingValue = "false", matchIfMissing = true)
+@EnableScheduling
+//@ConditionalOnProperty(value = "app.kafka.enabled", havingValue = "false", matchIfMissing = true)
 public class ImportJsonCdrSchedule {
 
     private final ObjectMapper om;
@@ -29,6 +32,8 @@ public class ImportJsonCdrSchedule {
     private final File jsonCdrBackupDir;
     private final boolean removedAfterImport;
     private final JsonCdrStoreService jsonCdrStoreService;
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public ImportJsonCdrSchedule(
             ObjectMapper om,
@@ -40,8 +45,10 @@ public class ImportJsonCdrSchedule {
         this.removedAfterImport = removedAfterImport;
         this.jsonCdrStoreService = jsonCdrStoreService;
         this.jsonCdrDir = Paths.get(jsonCdrDir).toFile();
-        if (!this.jsonCdrDir.exists() || !this.jsonCdrDir.isDirectory())
+        if (!this.jsonCdrDir.isDirectory())
             throw new IOException("Cannot access json_cdr directory " + jsonCdrDir);
+
+        if (!this.jsonCdrDir.exists()) Files.createDirectory(this.jsonCdrDir.toPath());
 
         if (StringUtils.isEmpty(jsonCdrBackupDir)) {
             this.jsonCdrBackupDir = Paths.get(jsonCdrDir, "backup").toFile();
@@ -79,6 +86,7 @@ public class ImportJsonCdrSchedule {
             return;
         }
 
+        log.info("Found {} cdr file(s) in {}", jsonFiles.length, this.jsonCdrDir);
         var sortedJsonFiles = Arrays.stream(jsonFiles).sorted(JSON_CDR_FILE_SORT).toList();
         for (var f : sortedJsonFiles) {
             var map = om.readValue(f, new TypeReference<Map<String, Object>>() {
@@ -96,8 +104,11 @@ public class ImportJsonCdrSchedule {
 
                     if (removedAfterImport) {
                         Files.deleteIfExists(f.toPath());
+                        log.debug("Removed cdr file {}", f.toPath());
                     } else {
-                        Files.move(f.toPath(), Paths.get(this.jsonCdrBackupDir.getPath(), f.getName()));
+                        var newPath = Paths.get(this.jsonCdrBackupDir.getPath(), f.getName());
+                        Files.move(f.toPath(), newPath);
+                        log.debug("Moved cdr file {} to {}", f.toPath(), newPath);
                     }
                 }
             }
