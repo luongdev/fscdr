@@ -80,17 +80,20 @@ public class JsonCdrStoreService {
                 msg.getJson().put("variables", variables);
             }
 
-            var strStartEpoch = variables.get("start_epoch");
-            var collPrefix = formatCollectionPrefix(
-                    StringUtils.isEmpty(strStartEpoch)
-                            ? System.currentTimeMillis()
-                            : Integer.parseInt(strStartEpoch) * 1000L);
+            var startEpoch = StringUtils.isEmpty(variables.get("start_epoch"))
+                    ? System.currentTimeMillis()
+                    : Integer.parseInt(variables.get("start_epoch")) * 1000L;
 
+            var endEpoch = StringUtils.isEmpty(variables.get("end_epoch"))
+                    ? System.currentTimeMillis()
+                    : Integer.parseInt(variables.get("end_epoch")) * 1000L;
+
+            var collPrefix = formatCollectionPrefix(startEpoch);
             var doc = new DynamicDocument();
             doc.put("cdrId", msg.getCdrId());
             doc.put("globalCallId", msg.getGlobalCallId());
-
-
+            doc.put("startEpoch", startEpoch);
+            doc.put("endEpoch", endEpoch);
             doc.put("json", msg.getJson());
 
             identifier.prefix(collPrefix).collectionName("json_cdr");
