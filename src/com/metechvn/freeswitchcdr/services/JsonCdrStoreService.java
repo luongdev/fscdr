@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -52,6 +53,33 @@ public class JsonCdrStoreService {
                 return;
             }
 
+            var replacements = new HashMap<String, String>();
+            for (var varEntry : variables.entrySet()) {
+                if (!varEntry.getKey().contains(".")) continue;
+
+                replacements.put(varEntry.getKey(), varEntry.getKey().replace(".", "_dot_"));
+            }
+
+            if (!replacements.isEmpty()) {
+                for (var repEntry : replacements.entrySet()) {
+                    var value = variables.get(repEntry.getKey());
+
+                    variables.remove(repEntry.getKey());
+                    variables.put(repEntry.getValue(), value);
+
+                    log.warn(
+                            "Replaced dot key {} to {} cdr: {} global call id: {}",
+                            repEntry.getKey(),
+                            repEntry.getValue(),
+                            msg.getCdrId(),
+                            msg.getGlobalCallId()
+                    );
+                }
+
+                msg.getJson().remove("variables");
+                msg.getJson().put("variables", variables);
+            }
+
             var strStartEpoch = variables.get("start_epoch");
             var collPrefix = formatCollectionPrefix(
                     StringUtils.isEmpty(strStartEpoch)
@@ -61,6 +89,8 @@ public class JsonCdrStoreService {
             var doc = new DynamicDocument();
             doc.put("cdrId", msg.getCdrId());
             doc.put("globalCallId", msg.getGlobalCallId());
+
+
             doc.put("json", msg.getJson());
 
             identifier.prefix(collPrefix).collectionName("json_cdr");
