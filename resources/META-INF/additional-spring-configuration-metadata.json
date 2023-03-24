@@ -1,0 +1,29 @@
+{
+  "properties": [
+    {
+      "name": "app.instance",
+      "type": "java.lang.String",
+      "description": "Description for app.instance."
+    },
+    {
+      "name": "app.kafka.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Description for app.kafka.enabled."
+    },
+    {
+      "name": "app.json-cdr.topic",
+      "type": "java.lang.String",
+      "description": "Description for app.json-cdr.topic."
+    },
+    {
+      "name": "app.json-cdr.import-cron",
+      "type": "java.lang.String",
+      "description": "Description for app.json-cdr.import-cron."
+    },
+    {
+      "name": "app.json-cdr.backup-dir",
+      "type": "java.lang.String",
+      "description": "Description for app.json-cdr.backup-dir."
+    }
+  ]
+}
