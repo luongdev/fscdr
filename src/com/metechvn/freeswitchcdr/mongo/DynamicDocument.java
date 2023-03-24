@@ -21,7 +21,12 @@ public class DynamicDocument extends org.bson.Document {
     }
 
     public DynamicDocument put(String key, Object value) {
-        if (StringUtils.hasText(key)) super.put(key, value);
+        if (StringUtils.hasText(key)) {
+            if (key.contains(".")) {
+                key = key.replace(".", "_dot_");
+            }
+            super.put(key, value);
+        }
 
         return this;
     }
