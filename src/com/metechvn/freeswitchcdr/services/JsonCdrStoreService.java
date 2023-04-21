@@ -11,10 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.metechvn.freeswitchcdr.utils.PrefixUtils.formatCollectionPrefix;
 
 @Service
 public class JsonCdrStoreService {
@@ -89,12 +89,14 @@ public class JsonCdrStoreService {
                     : Integer.parseInt(variables.get("end_epoch")) * 1000L;
 
             var collPrefix = formatCollectionPrefix(startEpoch);
+
             var doc = new DynamicDocument();
             doc.put("cdrId", msg.getCdrId());
             doc.put("globalCallId", msg.getGlobalCallId());
             doc.put("startEpoch", startEpoch);
             doc.put("endEpoch", endEpoch);
             doc.put("json", msg.getJson());
+            doc.put("domainName", variables.get("domain_name"));
 
             identifier.prefix(collPrefix).collectionName("json_cdr");
 
@@ -113,11 +115,5 @@ public class JsonCdrStoreService {
                     e.getMessage()
             );
         }
-    }
-
-    private String formatCollectionPrefix(long millis) {
-        if (millis <= 0) return "197001";
-
-        return new SimpleDateFormat("yyyyMM").format(new Date(millis));
     }
 }
