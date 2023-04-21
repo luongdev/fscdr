@@ -6,6 +6,7 @@ target/
 ###
 node_modules
 node
+dist
 .angular
 ### STS ###
 .apt_generated

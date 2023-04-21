@@ -123,7 +123,7 @@
                                     <outputDirectory>${basedir}/target/classes/static</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <directory>app/build</directory>
+                                            <directory>app/dist</directory>
                                         </resource>
                                     </resources>
                                 </configuration>
