@@ -1,8 +1,10 @@
-import {Component, Injector, OnInit} from '@angular/core';
+import {Component, Injector, OnInit, ViewChild} from '@angular/core';
 import {ComponentBase} from "@shared/ultils/component-base.component";
 import {CallDetailRecordList} from "@shared/models/call-detail-record/call-detail-record.model";
 import {DialogService} from "primeng/dynamicdialog";
 import {CallDetailRecordPreviewComponent} from "../call-detail-record-preview/call-detail-record-preview.component";
+import * as moment from 'moment';
+import {NzDatePickerComponent} from 'ng-zorro-antd/date-picker';
 
 @Component({
     selector: 'app-call-detail-record-table',
@@ -14,7 +16,10 @@ export class CallDetailRecordTableComponent extends ComponentBase<CallDetailReco
         super(injector);
     }
 
-    selected: { startDate: Date, endDate: Date };
+    mode: any = 'date';
+    searchValue: string;
+    searchDate: Date;
+    @ViewChild('datePicker') datePicker: NzDatePickerComponent;
 
     ngOnInit(): void {
         this.primengTableHelper.records = [
@@ -192,5 +197,14 @@ export class CallDetailRecordTableComponent extends ComponentBase<CallDetailReco
 
     handleResetClick() {
 
+    }
+
+    nzDisableDate = (d: Date): boolean => {
+        return d > new Date();
+    }
+
+    handleSearch() {
+        console.log(this.searchDate)
+        console.log(this.searchValue)
     }
 }

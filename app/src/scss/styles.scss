@@ -28,3 +28,7 @@ $enable-rtl: true;
 @import "tailwindcss/utilities";
 @import "tailwindcss/screens";
 @import "tailwindcss/variants";
+
+.anticon {
+  vertical-align: 0 !important;
+}

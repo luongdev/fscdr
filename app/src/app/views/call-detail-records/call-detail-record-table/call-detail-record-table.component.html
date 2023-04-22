@@ -14,22 +14,42 @@
                     [scrollHeight]="'70vh'"
             >
                 <ng-template pTemplate="caption">
-                    <div class="w-100 flex align-items-center justify-content-end">
-                        <p-button
-                                label="Calls"
-                                icon="pi pi-phone"
-                                badge="8"
-                                styleClass="mx-2 p-button-sm p-button-outlined"
-                                (click)="handlePreviewClick()"></p-button>
-                        <p-button
-                                label="Reset"
-                                icon="pi pi-refresh"
-                                styleClass="mx-2 p-button-sm p-button-danger p-button-outlined"
-                                (click)="handleResetClick()"></p-button>
-                        <span class="w-2/5 p-input-icon-right">
-                            <i class="pi pi-search"></i>
-                            <input pInputText class="w-100 p-inputtext-sm" type="text"/>
-                        </span>
+                    <div class="w-100 flex align-items-center justify-between">
+                        <div class="w-100 flex align-items-center justify-between">
+                            <nz-space>
+                                <nz-select *nzSpaceItem [(ngModel)]="mode">
+                                    <nz-option nzValue="date" nzLabel="Date"></nz-option>
+                                    <nz-option nzValue="month" nzLabel="Month"></nz-option>
+                                </nz-select>
+                                <nz-date-picker
+                                        *nzSpaceItem
+                                        [nzMode]="mode"
+                                        [(ngModel)]="searchDate"
+                                        [nzDisabledDate]="nzDisableDate"
+                                        [nzShowTime]="mode === 'date'"
+                                ></nz-date-picker>
+                            </nz-space>
+                            <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton" class="w-50">
+                                <input type="text" nz-input [(ngModel)]="searchValue" (keydown.enter)="handleSearch()"/>
+                            </nz-input-group>
+                            <ng-template #suffixIconButton>
+                                <button nz-button nzType="primary" nzSearch (click)="handleSearch()">
+                                    <span nz-icon nzType="search"></span>
+                                </button>
+                            </ng-template>
+                        </div>
+                        <div class="w-100 flex align-items-center justify-content-end">
+                            <nz-badge [nzCount]="5" class="mx-2">
+                                <button nz-button nzType="primary" (click)="handlePreviewClick()">
+                                    <span nz-icon nzType="phone"></span>
+                                    Calls
+                                </button>
+                            </nz-badge>
+                            <button nz-button nzDanger (click)="handleResetClick()" class="mx-2">
+                                <span nz-icon nzType="reload"></span>
+                                Reset
+                            </button>
+                        </div>
                     </div>
                 </ng-template>
 

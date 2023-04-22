@@ -32,9 +32,15 @@
             "preserveSymlinks": true,
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
+                "output": "/assets/"
+              }
             ],
             "styles": [
+              "./node_modules/ng-zorro-antd/ng-zorro-antd.min.css",
               "src/scss/styles.scss",
               "src/assets/styles/tailwind.css",
               "node_modules/primeicons/primeicons.css",
@@ -111,6 +117,7 @@
               "src/assets"
             ],
             "styles": [
+              "./node_modules/ng-zorro-antd/ng-zorro-antd.min.css",
               "src/scss/styles.scss",
               "node_modules/tailwindcss/tailwind.css",
               "node_modules/tailwindcss/screens.css",

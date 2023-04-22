@@ -1,7 +1,7 @@
 import {APP_INITIALIZER, NgModule} from '@angular/core';
 import {BrowserModule, Title} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {ReactiveFormsModule} from '@angular/forms';
+import {ReactiveFormsModule, FormsModule} from '@angular/forms';
 
 
 import {registerLocaleData} from '@angular/common';
@@ -57,6 +57,8 @@ import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
 import {DialogModule} from 'primeng/dialog';
 import {DialogService} from "primeng/dynamicdialog";
+import { NZ_I18N } from 'ng-zorro-antd/i18n';
+import { en_US } from 'ng-zorro-antd/i18n';
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     suppressScrollX: true,
@@ -102,7 +104,8 @@ const APP_CONTAINERS = [
         ListGroupModule,
         CardModule,
         ToastModule,
-        DialogModule
+        DialogModule,
+        FormsModule
     ],
     providers: [
         MessageService,
@@ -129,6 +132,7 @@ const APP_CONTAINERS = [
         {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true},
         IconSetService,
         Title,
+        { provide: NZ_I18N, useValue: en_US },
     ],
     bootstrap: [AppComponent],
 })
