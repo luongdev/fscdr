@@ -15,8 +15,9 @@
                         <p-button
                                 label="Send"
                                 icon="pi pi-send"
-                                badge="8"
                                 styleClass="mx-2 p-button-sm p-button-outlined"
+                                [disabled]="callsCount === 0"
+                                [badge]="'' + callsCount"
                                 (click)="handleSend()"></p-button>
                     </div>
                 </ng-template>

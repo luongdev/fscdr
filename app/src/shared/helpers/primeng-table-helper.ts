@@ -4,12 +4,8 @@ import {Paginator} from 'primeng/paginator';
 export class PrimengTableHelper<T> {
     predefinedRecordsCountPerPage = [25, 50, 100];
     defaultRecordsCountPerPage = 50;
-
-
     totalRecordsCount = 0;
-
     records: T[];
-
     isLoading = false;
 
     showLoadingIndicator(): void {

@@ -7,6 +7,7 @@ import * as moment from 'moment';
 import {NzDatePickerComponent} from 'ng-zorro-antd/date-picker';
 import {CallDetailRecordService} from "@shared/services/call-detail-record/call-detail-record.service";
 import {Paginator} from "primeng/paginator";
+import {data} from "autoprefixer";
 
 @Component({
     selector: 'app-call-detail-record-table',
@@ -31,10 +32,10 @@ export class CallDetailRecordTableComponent extends ComponentBase<CallDetailReco
     mode: any = 'date';
     searchValue: string;
     searchDate = new Date();
-    selections = new Map<string, CallDetailRecordList>();
 
     ngOnInit(): void {
         this.searchDate = moment(new Date()).set(this.startDay).toDate();
+        this._callDetailRecordService.on('delete', data => delete data['selected']);
 
         this.handleSearch();
     }
@@ -46,7 +47,7 @@ export class CallDetailRecordTableComponent extends ComponentBase<CallDetailReco
     handleClick(cdr: CallDetailRecordList) {
         cdr.selected = true;
 
-        this.selections.set(cdr.id, cdr);
+        this._callDetailRecordService.save(cdr);
     }
 
     handlePreviewClick() {
@@ -57,8 +58,7 @@ export class CallDetailRecordTableComponent extends ComponentBase<CallDetailReco
             header: 'Danh sách gửi',
             width: '80vw',
             height: '80vh',
-            contentStyle: {'overflow': 'auto'},
-            data: {selections: this.selections}
+            contentStyle: {'overflow': 'auto'}
         });
 
         dialog.onClose.subscribe(() => {
@@ -67,9 +67,11 @@ export class CallDetailRecordTableComponent extends ComponentBase<CallDetailReco
     }
 
     handleResetClick() {
-        for (const cdr of this.selections.values()) delete cdr['selected'];
+        for (const key of this._callDetailRecordService.keys) {
+            delete this._callDetailRecordService.get(key)['selected'];
+        }
 
-        this.selections.clear();
+        this._callDetailRecordService.clear();
     }
 
     nzDisableDate = (d: Date): boolean => {
@@ -102,7 +104,7 @@ export class CallDetailRecordTableComponent extends ComponentBase<CallDetailReco
     }
 
     get selectCount(): number {
-        return this.selections?.size ?? 0;
+        return this._callDetailRecordService.size;
     }
 
     private times(): number[] {
