@@ -106,21 +106,21 @@ public class KafkaConfiguration {
     @Bean("adminClient")
     public AdminClient adminClient() throws ExecutionException, InterruptedException {
         var adminClient = KafkaAdminClient.create(kafkaProperties.buildAdminProperties());
-//        var topics = adminClient.listTopics();
-//        Map<String, Boolean> existTopics = topics.names().get().stream().collect(Collectors.toMap(x -> x, x -> true));
-//        for (var topic : queueTopics) {
-//            if (!existTopics.containsKey(topic.name())) {
-//                adminClient.createTopics(Collections.singleton(topic)).all().get();
-//                existTopics.put(topic.name(), true);
-//
-//                log.info(
-//                        "Create topic {}[{} partitions, {} replicas] successfully!",
-//                        topic.name(),
-//                        topic.numPartitions(),
-//                        topic.numPartitions()
-//                );
-//            }
-//        }
+        var topics = adminClient.listTopics();
+        Map<String, Boolean> existTopics = topics.names().get().stream().collect(Collectors.toMap(x -> x, x -> true));
+        for (var topic : queueTopics) {
+            if (!existTopics.containsKey(topic.name())) {
+                adminClient.createTopics(Collections.singleton(topic)).all().get();
+                existTopics.put(topic.name(), true);
+
+                log.info(
+                        "Create topic {}[{} partitions, {} replicas] successfully!",
+                        topic.name(),
+                        topic.numPartitions(),
+                        topic.numPartitions()
+                );
+            }
+        }
 
         return adminClient;
     }

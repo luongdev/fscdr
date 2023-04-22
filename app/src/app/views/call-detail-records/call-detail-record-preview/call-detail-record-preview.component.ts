@@ -14,6 +14,8 @@ export class CallDetailRecordPreviewComponent extends ComponentBase<CallDetailRe
     readonly callIds: string[] = [];
     readonly calls: CallDetailRecordList[] = [];
 
+    private readonly findDate: number;
+
     constructor(
         injector: Injector,
         dialogConfig: DynamicDialogConfig,
@@ -21,6 +23,8 @@ export class CallDetailRecordPreviewComponent extends ComponentBase<CallDetailRe
         private readonly dialogRef: DynamicDialogRef,
         private readonly _callDetailRecordService: CallDetailRecordService) {
         super(injector);
+
+        this.findDate = dialogConfig.data['findDate'];
     }
 
     get callsCount(): number {
@@ -42,10 +46,10 @@ export class CallDetailRecordPreviewComponent extends ComponentBase<CallDetailRe
 
         this.primengTableHelper.showLoadingIndicator();
         this._callDetailRecordService
-            .sendCallDetailRecords(this.callIds)
+            .sendCallDetailRecords(this.findDate, this.callIds)
             .subscribe({
                 next: value => {
-                    if (!value) {
+                    if (!value?.success) {
                         this.msgService.add({
                             severity: 'error',
                             summary: 'Không thể gửi CDR(s)'
@@ -53,10 +57,15 @@ export class CallDetailRecordPreviewComponent extends ComponentBase<CallDetailRe
                         return;
                     }
 
-                    for (const key of this._callDetailRecordService.keys) {
-                        this._callDetailRecordService.delete(key);
+                    debugger
+                    if (value.data) {
+                        console.log(value.data);
+                        for (const key of value.data) {
+                            this._callDetailRecordService.delete(key);
+                        }
                     }
-                    this.dialogRef.close();
+
+                    this.dialogRef.close(value.errors);
                 },
                 error: err => {
                     this.primengTableHelper.hideLoadingIndicator();

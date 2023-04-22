@@ -58,11 +58,12 @@ export class CallDetailRecordTableComponent extends ComponentBase<CallDetailReco
             header: 'Danh sách gửi',
             width: '80vw',
             height: '80vh',
-            contentStyle: {'overflow': 'auto'}
+            contentStyle: {'overflow': 'auto'},
+            data: {findDate: this.times()[0]}
         });
 
-        dialog.onClose.subscribe(() => {
-
+        dialog.onClose.subscribe((errors) => {
+            console.log('Không thể gửi mấy cái của nợ này ', errors);
         });
     }
 
