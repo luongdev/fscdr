@@ -27,7 +27,7 @@ public class CDRController {
         this.jsonCdrRepository = jsonCdrRepository;
     }
 
-    @GetMapping("")
+    @GetMapping({"", "/"})
     public PagedResult get(
             @RequestParam("page") int page,
             @RequestParam("size") int size,

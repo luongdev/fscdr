@@ -39,7 +39,7 @@
                             </ng-template>
                         </div>
                         <div class="w-100 flex align-items-center justify-content-end">
-                            <nz-badge [nzCount]="5" class="mx-2">
+                            <nz-badge [nzCount]="selectCount" class="mx-2">
                                 <button nz-button nzType="primary" (click)="handlePreviewClick()">
                                     <span nz-icon nzType="phone"></span>
                                     Calls
@@ -55,6 +55,8 @@
 
                 <ng-template pTemplate="header">
                     <tr>
+                        <th>Id</th>
+                        <th>Miền</th>
                         <th>SĐT</th>
                         <th>Hướng</th>
                         <th>Đầu số</th>
@@ -65,14 +67,22 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-cdr>
                     <tr>
+                        <td>{{ cdr.globalCallId }}</td>
+                        <td>{{ cdr.domainName }}</td>
                         <td>{{ cdr.phoneNumber }}</td>
                         <td>{{ cdr.direction }}</td>
                         <td>{{ cdr.dialedNumber }}</td>
                         <td>{{ cdr.startTime | date: 'yyyy/MM/dd HH:mm:ss' }}</td>
                         <td>{{ cdr.endTime | date: 'yyyy/MM/dd HH:mm:ss'}}</td>
                         <td>
-                            <button pButton class="p-button-outlined" icon="pi pi-plus"
-                                    (click)="handleClick(cdr)"></button>
+                            <button
+                                    nz-button
+                                    nzType="primary"
+                                    nzSize="small"
+                                    *ngIf="!cdr.selected"
+                                    (click)="handleClick(cdr)">
+                                <span nz-icon nzType="check"></span>
+                            </button>
                         </td>
                     </tr>
                 </ng-template>

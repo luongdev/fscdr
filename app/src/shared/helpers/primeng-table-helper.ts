@@ -25,6 +25,9 @@ export class PrimengTableHelper<T> {
     }
 
     getMaxResultCount(paginator: Paginator, event: LazyLoadEvent): number {
+        if (!paginator) {
+            return this.defaultRecordsCountPerPage;
+        }
         if (paginator.rows) {
             return paginator.rows;
         }
@@ -36,15 +39,9 @@ export class PrimengTableHelper<T> {
         return event.rows;
     }
 
-    getSkipCount(paginator: Paginator, event: LazyLoadEvent): number {
-        if (paginator.first) {
-            return paginator.first;
-        }
 
-        if (!event) {
-            return 0;
-        }
-
-        return event.first;
+    getCurrentPage(paginator: Paginator): number {
+        const page = paginator?.currentPage() ?? 0;
+        return page > 0 ? page - 1 : 0;
     }
 }

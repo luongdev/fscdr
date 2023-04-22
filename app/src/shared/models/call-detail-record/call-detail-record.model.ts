@@ -7,5 +7,5 @@ export interface CallDetailRecordList {
     startTime: number;
     endTime: number;
     direction: string;
-
+    selected?: boolean;
 }
