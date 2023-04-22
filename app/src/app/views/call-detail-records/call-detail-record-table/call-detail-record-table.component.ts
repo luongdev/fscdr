@@ -14,6 +14,8 @@ export class CallDetailRecordTableComponent extends ComponentBase<CallDetailReco
         super(injector);
     }
 
+    selected: { startDate: Date, endDate: Date };
+
     ngOnInit(): void {
         this.primengTableHelper.records = [
             {

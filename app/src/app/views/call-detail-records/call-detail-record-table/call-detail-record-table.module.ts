@@ -25,7 +25,12 @@ const PRIMENG = [
 
 @NgModule({
     declarations: [CallDetailRecordTableComponent],
-    imports: [CommonModule, FormsModule, ...PRIMENG, CallDetailRecordPreviewModule],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ...PRIMENG,
+        CallDetailRecordPreviewModule,
+    ],
     exports: [CallDetailRecordTableComponent]
 })
 export class CallDetailRecordTableModule {

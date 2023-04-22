@@ -3,6 +3,10 @@ import {BrowserModule, Title} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ReactiveFormsModule} from '@angular/forms';
 
+
+import {registerLocaleData} from '@angular/common';
+import en from '@angular/common/locales/en';
+
 import {
     PERFECT_SCROLLBAR_CONFIG,
     PerfectScrollbarConfigInterface,
@@ -51,12 +55,14 @@ import {ConfigService} from '@shared/ultils/config.service';
 import {PagesModule} from './views/pages/pages.module';
 import {ToastModule} from "primeng/toast";
 import {MessageService} from "primeng/api";
-import { DialogModule } from 'primeng/dialog';
+import {DialogModule} from 'primeng/dialog';
 import {DialogService} from "primeng/dynamicdialog";
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     suppressScrollX: true,
 };
+
+registerLocaleData(en);
 
 const APP_CONTAINERS = [
     DefaultFooterComponent,
