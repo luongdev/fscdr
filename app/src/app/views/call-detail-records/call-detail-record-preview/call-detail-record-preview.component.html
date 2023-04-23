@@ -16,8 +16,9 @@
                                 label="Send"
                                 icon="pi pi-send"
                                 styleClass="mx-2 p-button-sm p-button-outlined"
-                                [disabled]="callsCount === 0"
+                                [disabled]="callsCount === 0 || isSending"
                                 [badge]="'' + callsCount"
+                                [loading]="isSending"
                                 (click)="handleSend()"></p-button>
                     </div>
                 </ng-template>
@@ -43,6 +44,8 @@
                                     pButton
                                     class="p-button-danger p-button-outlined"
                                     icon="pi pi-times"
+                                    [loading]="isSending"
+                                    [disabled]="isSending"
                                     (click)="handleRemove(cdr)"></button>
                         </td>
                     </tr>

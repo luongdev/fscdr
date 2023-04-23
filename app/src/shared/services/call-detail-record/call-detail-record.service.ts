@@ -63,9 +63,9 @@ export class CallDetailRecordService {
         return this._http.get<PagedResponse<CallDetailRecordList>>('http://localhost:8080/api/v1/cdr/', {params});
     }
 
-    sendCallDetailRecords(findDate: number, ids: string[]) {
-        return this._http.post<{ success: boolean, errors: [], data: [] }>(
-            'http://localhost:8080/api/v1/cdr/send', {cdrIds: ids}, {params: {findDate}});
+    sendCallDetailRecords(cdrs: { id: string; startTime: number }[]) {
+        return this._http.post<{ success: boolean, data: { successIds: [], errorIds: [] } }>(
+            'http://localhost:8080/api/v1/cdr/send', {cdrs});
     }
 
 }

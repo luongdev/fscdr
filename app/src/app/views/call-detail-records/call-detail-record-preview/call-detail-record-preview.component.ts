@@ -11,7 +11,6 @@ import {MessageService} from "primeng/api";
 })
 export class CallDetailRecordPreviewComponent extends ComponentBase<CallDetailRecordList> implements OnInit {
 
-    readonly callIds: string[] = [];
     readonly calls: CallDetailRecordList[] = [];
 
     private readonly findDate: number;
@@ -41,12 +40,16 @@ export class CallDetailRecordPreviewComponent extends ComponentBase<CallDetailRe
         this.mapData();
     }
 
+    get isSending(): boolean {
+        return this.primengTableHelper.isLoading;
+    }
+
     handleSend() {
         if (this.callsCount <= 0) return;
 
         this.primengTableHelper.showLoadingIndicator();
         this._callDetailRecordService
-            .sendCallDetailRecords(this.findDate, this.callIds)
+            .sendCallDetailRecords(this.requestBody())
             .subscribe({
                 next: value => {
                     if (!value?.success) {
@@ -57,15 +60,14 @@ export class CallDetailRecordPreviewComponent extends ComponentBase<CallDetailRe
                         return;
                     }
 
-                    debugger
                     if (value.data) {
                         console.log(value.data);
-                        for (const key of value.data) {
+                        for (const key of value.data.successIds) {
                             this._callDetailRecordService.delete(key);
                         }
                     }
 
-                    this.dialogRef.close(value.errors);
+                    this.dialogRef.close(value.data.errorIds);
                 },
                 error: err => {
                     this.primengTableHelper.hideLoadingIndicator();
@@ -83,13 +85,21 @@ export class CallDetailRecordPreviewComponent extends ComponentBase<CallDetailRe
             });
     }
 
-    private mapData() {
-        this.calls.length = 0;
-        this.callIds.length = 0;
+    private requestBody() {
+        const cdrs = [];
 
         for (const key of this._callDetailRecordService.keys) {
+            const cdr = this._callDetailRecordService.get(key);
+            cdrs.push({id: cdr.id, startTime: cdr.startTime});
+        }
+
+        return cdrs;
+    }
+
+    private mapData() {
+        this.calls.length = 0;
+        for (const key of this._callDetailRecordService.keys) {
             this.calls.push(this._callDetailRecordService.get(key));
-            this.callIds.push(key);
         }
 
         this.primengTableHelper.records = this.calls;
