@@ -10,6 +10,8 @@ import com.metechvn.freeswitchcdr.repositories.JsonCdrRepository;
 import io.micrometer.common.util.StringUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.bson.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -35,6 +37,8 @@ public class CDRController {
     private final Lock prefixLock;
     private final int sendTimeout;
     private final String jsonCdrTopic;
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public CDRController(
             CollectionIdentifier identifier,
@@ -124,16 +128,15 @@ public class CDRController {
             List<Document> cdrs;
             prefixLock.lock();
             try {
-                var collection = identifier.prefix(prefix).collectionName("json_cdr").collection();
-
-                System.out.println("Trying to find " + collection.getNamespace().getFullName());
-
+                log.debug("Lock resource(s) to waiting select cdr!");
                 cdrs = jsonCdrRepository.findAllByIdIn(entries.stream().map(CDRSendDto.Entry::getId).toList());
+                log.debug("Found {} cdr(s) with prefix {}", cdrs == null ? 0 : cdrs.size(), prefix);
             } finally {
                 prefixLock.unlock();
+                log.debug("Unlock resource(s)!");
             }
 
-            if (cdrs == null) return result;
+            if (cdrs == null || cdrs.size() == 0) return result;
 
             for (var cdr : cdrs) {
                 var globalCallId = cdr.get("globalCallId", String.class);
@@ -149,14 +152,22 @@ public class CDRController {
                     )).get(sendTimeout, TimeUnit.SECONDS);
                     result.success(id);
 
-                    System.out.println("PREFIX " + prefix + " " + id);
+                    log.debug(
+                            "Sent cdr {}({}) call {} to topic {} using timeout {} second(s)",
+                            id, uuid, globalCallId, jsonCdrTopic, sendTimeout
+                    );
                 } catch (InterruptedException | ExecutionException | TimeoutException e) {
-//                } catch (InterruptedException e) {
                     result.error(id);
+                    log.error(
+                            "Cannot send cdr {}({}) call {} to topic {} using timeout {} second(s). Trace: {}",
+                            id, uuid, globalCallId, jsonCdrTopic, sendTimeout, e.getMessage()
+                    );
                 }
             }
 
-            System.out.println("OK GOOGLE " + prefix + " " + (System.currentTimeMillis() - start));
+            log.debug("Process cdr prefix {} take {}. Success: {}, error: {}",
+                    prefix, System.currentTimeMillis() - start, result.successIds.size(), result.errorIds.size()
+            );
 
             return result;
         };

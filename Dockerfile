@@ -13,7 +13,7 @@ ENV TZ=Asia/Ho_Chi_Minh
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 COPY ./build/libs/*.jar $HOME/app.jar
 
-
+ENV APP_KAFKA_ENABLED "true"
 ENV KAFKA_BOOTSTRAP_SERVER "localhost:9092"
 ENV KAFKA_INSTANCE_ID "FS-CDR"
 ENV KAFKA_SECURITY_PROTOCOL "PLAINTEXT"
@@ -27,9 +27,20 @@ ENV SCHEMA_REGISTRY_CRED_SOURCE "USER_INFO"
 ENV SCHEMA_REGISTRY_USER ""
 ENV SCHEMA_REGISTRY_PASSWORD ""
 
+ENV MONGO_USER "root"
+ENV MONGO_PASSWD ""
+ENV MONGO_DBNAME "json_cdr"
+ENV MONGO_PORT 27017
+ENV MONGO_HOST "localhost"
+ENV MONGO_AUTHDB "admin"
+
+ENV APP_JSON_CDR_TOPIC "json_cdr"
+ENV APP_JSON_CDR_DIR "/var/data/cdr"
+ENV APP_JSON_CDR_IMPORT_CRON "0/5 * * * * *"
+ENV APP_JSON_CDR_REMOVE_AFTER_IMPORT "true"
+
 COPY target/*.jar /usr/local/lib/app.jar
 
-#COPY --from=build $WORK_DIR/*.jar /usr/local/lib/app.jar
 COPY resources ${CONFIG_DIR}
 
 ENV JVM_OPTS "--spring.config.location=file://${CONFIG_DIR}/application.properties"
