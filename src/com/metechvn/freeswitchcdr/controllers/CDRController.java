@@ -63,14 +63,30 @@ public class CDRController {
             @RequestParam("fromDate") long fromDate,
             @RequestParam(name = "toDate", required = false) Long toDate,
             @RequestParam(name = "keyword", required = false) String keyword) {
-        identifier.prefix(formatCollectionPrefix(fromDate)).collectionName("json_cdr");
-
         var pageable = PageRequest.of(page, size, Sort.by("startEpoch").ascending());
         Page<Document> pagedResult;
-        if (toDate == null || toDate < fromDate) {
-            pagedResult = jsonCdrRepository.findBy(keyword, fromDate, pageable);
-        } else {
-            pagedResult = jsonCdrRepository.findBy(keyword, fromDate, toDate, pageable);
+        var prefix = formatCollectionPrefix(fromDate);
+        identifier.prefix(prefix).collectionName("json_cdr");
+
+        log.info(
+                "Find json cdr ({}) from {} to {} keyword {}",
+                identifier.name(),
+                new Date(fromDate),
+                toDate == null ? null : new Date(toDate),
+                keyword
+        );
+
+        prefixLock.lock();
+        try {
+            if (toDate == null || toDate < fromDate) {
+                log.info("Find without toDate");
+                pagedResult = jsonCdrRepository.findBy(keyword, fromDate, pageable);
+            } else {
+                log.info("Find with toDate {}", new Date(toDate));
+                pagedResult = jsonCdrRepository.findBy(keyword, fromDate, toDate, pageable);
+            }
+        } finally {
+            prefixLock.unlock();
         }
 
         return PagedResult.of(
