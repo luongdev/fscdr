@@ -44,11 +44,11 @@ ENV APP_JSON_CDR_REMOVE_AFTER_IMPORT "true"
 ENV BASE_API_URL "http://localhost:8080"
 
 COPY --from=build /usr/src/target/*.jar /usr/local/app.jar
-#COPY --from=build /usr/src/target/classes/static /usr/share/nginx/html
-COPY --from=build /usr/src /usr/src
+COPY --from=build /usr/src/target/classes/static /usr/share/nginx/html
+COPY --from=build /usr/src/target/classes/application.properties ${CONFIG_DIR}/
+COPY --from=build /usr/src/target/classes/application-dev.properties ${CONFIG_DIR}/
+COPY --from=build /usr/src/nginx.conf /usr/src/nginx.conf
 
-COPY resources/application.properties ${CONFIG_DIR}/
-COPY nginx.conf /usr/src/nginx.conf
 COPY docker-entrypoint.sh /
 
 RUN chmod +x docker-entrypoint.sh
@@ -60,8 +60,8 @@ EXPOSE 8080
 
 ENV JVM_OPTS "--spring.config.location=file://${CONFIG_DIR}/application.properties"
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+VOLUME ["/var/data/cdr", "/opt/fscdr"]
 
-#ENTRYPOINT [ "sh", "-c", "/docker-entrypoin.sh" ]
-#
-#CMD ["java -jar /usr/local/app.jar ${JVM_OPTS}"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+CMD ["java", "-jar", "/usr/local/app.jar", "${JVM_OPTS}", "--spring.profiles.active=dev"]
