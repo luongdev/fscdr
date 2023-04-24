@@ -1,30 +1,23 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { environment } from '@env/environment';
-import { AppConfigModel } from '@shared/models/config/app-config.model';
+import {AppConfigModel} from "@shared/models";
+import {HttpClient} from "@angular/common/http";
+import {Injectable} from "@angular/core";
+import {environment} from "@env/environment";
+
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root',
 })
 export class ConfigService {
-  private appConfig: AppConfigModel;
-  constructor(private http: HttpClient) {}
+    private appConfig: AppConfigModel;
 
-  loadAppConfig() {
-    return this.http
-      .get(environment.appConfig)
-      .toPromise()
-      .then((config: AppConfigModel) => (this.appConfig = config));
-  }
+    constructor(private http: HttpClient) {
+    }
 
-  get baseUrl() {
-    return this.appConfig.baseUrl;
-  }
-
-  get keycloakUrl() {
-    return this.appConfig.keycloakBaseUrl;
-  }
-
-  get socketEndpoint() {
-    return this.appConfig.socketEndpoint;
-  }
+    loadAppConfig() {
+        return this.http
+            .get(environment.appConfig)
+            .subscribe({
+                next: (value: AppConfigModel) => this.appConfig = value,
+                error: error => console.error(`Cannot get configuration. Error: `, error),
+            });
+    }
 }
