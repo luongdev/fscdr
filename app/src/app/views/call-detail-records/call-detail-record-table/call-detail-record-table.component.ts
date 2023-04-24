@@ -7,7 +7,6 @@ import * as moment from 'moment';
 import {NzDatePickerComponent} from 'ng-zorro-antd/date-picker';
 import {CallDetailRecordService} from "@shared/services/call-detail-record/call-detail-record.service";
 import {Paginator} from "primeng/paginator";
-import {data} from "autoprefixer";
 
 @Component({
     selector: 'app-call-detail-record-table',

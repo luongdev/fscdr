@@ -30,7 +30,7 @@ export class AuthenticationService {
   login(username: string, password: string) {
     return this._http
       .post<AuthBaseResponse<UserModel>>(
-        `${this.configService.keycloakUrl}/v1.0/login`,
+        `/v1.0/login`,
         JSON.stringify({
           username: username,
           password: password,
@@ -63,7 +63,7 @@ export class AuthenticationService {
     if (currentUser && currentUser.refresh_token) {
       return this._http
         .post<AuthBaseResponse<UserModel>>(
-          `${this.configService.keycloakUrl}/v1.0/refresh-token`,
+          `/v1.0/refresh-token`,
           JSON.stringify({
             refresh_token: currentUser.refresh_token,
           }),

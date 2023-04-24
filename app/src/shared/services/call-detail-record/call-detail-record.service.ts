@@ -60,12 +60,11 @@ export class CallDetailRecordService {
         if (keyword) params['keyword'] = keyword.trim();
         if (toDate) params['toDate'] = toDate;
 
-        return this._http.get<PagedResponse<CallDetailRecordList>>('http://localhost:8080/api/v1/cdr/', {params});
+        return this._http.get<PagedResponse<CallDetailRecordList>>('/api/v1/cdr/', {params});
     }
 
     sendCallDetailRecords(cdrs: { id: string; startTime: number }[]) {
-        return this._http.post<{ success: boolean, data: { successIds: [], errorIds: [] } }>(
-            'http://localhost:8080/api/v1/cdr/send', {cdrs});
+        return this._http.post<{ success: boolean, data: { successIds: [], errorIds: [] } }>('/api/v1/cdr/send', {cdrs});
     }
 
 }

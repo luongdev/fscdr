@@ -27,6 +27,7 @@
         <node.version>v16.18.1</node.version>
         <npm.version>8.19.2</npm.version>
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
+        <start-class>com.metechvn.freeswitchcdr.FreeswitchCdrApplication</start-class>
     </properties>
     <dependencies>
         <dependency>
@@ -85,14 +86,22 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
+                    <mainClass>com.metechvn.freeswitchcdr.FreeswitchCdrApplication</mainClass>
                 </configuration>
             </plugin>
+            <!--            <plugin>-->
+            <!--                <groupId>org.springframework.boot</groupId>-->
+            <!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+            <!--                <configuration>-->
+            <!--                    <excludes>-->
+            <!--                        <exclude>-->
+            <!--                            <groupId>org.projectlombok</groupId>-->
+            <!--                            <artifactId>lombok</artifactId>-->
+            <!--                        </exclude>-->
+            <!--                    </excludes>-->
+            <!--                    <mainClass>com.metechvn.freeswitchcdr.FreeswitchCdrApplication</mainClass>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
         </plugins>
     </build>
 
