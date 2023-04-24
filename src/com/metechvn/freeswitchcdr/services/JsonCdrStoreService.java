@@ -38,13 +38,19 @@ public class JsonCdrStoreService {
         if (msg == null
                 || msg.getJson() == null
                 || msg.getJson().isEmpty()
+                || msg.getJson().containsKey("resend")
                 || StringUtils.isEmpty(msg.getCdrId())
-                || StringUtils.isEmpty(msg.getGlobalCallId())) return;
+                || StringUtils.isEmpty(msg.getGlobalCallId())) {
+            if (msg != null && msg.getJson() != null && msg.getJson().containsKey("resend")) {
+                log.warn("CDR {} call {} resend from log source. Ignored!", msg.getCdrId(), msg.getGlobalCallId());
+            }
+            return;
+        }
         try {
             var variables = om.convertValue(msg.getJson().get("variables"), new TypeReference<Map<String, String>>() {
             });
 
-            if (variables == null || variables.containsKey("resend")) {
+            if (variables == null) {
                 log.error(
                         "Cannot parse json cdr variables for cdr id: {} global call id: {}",
                         msg.getCdrId(),
