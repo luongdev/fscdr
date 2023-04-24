@@ -1,0 +1,56 @@
+<div class="card">
+    <div class="card-body">
+        <div>
+            <p-table
+                    [tableStyle]="{ 'min-width': '50rem' }"
+                    [styleClass]="'p-datatable-sm'"
+                    [value]="primengTableHelper.records"
+                    [loading]="primengTableHelper.isLoading"
+                    [autoLayout]="true"
+                    [lazy]="true"
+                    [scrollHeight]="'58vh'"
+            >
+                <ng-template pTemplate="caption">
+                    <div class="w-100 flex align-items-center justify-content-end">
+                        <p-button
+                                label="Send"
+                                icon="pi pi-send"
+                                styleClass="mx-2 p-button-sm p-button-outlined"
+                                [disabled]="callsCount === 0 || isSending"
+                                [badge]="'' + callsCount"
+                                [loading]="isSending"
+                                (click)="handleSend()"></p-button>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>SĐT</th>
+                        <th>Hướng</th>
+                        <th>Đầu số</th>
+                        <th>Bắt Đầu</th>
+                        <th>Kết Thúc</th>
+                        <th style="width: 5rem"></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-cdr>
+                    <tr>
+                        <td>{{ cdr.phoneNumber }}</td>
+                        <td>{{ cdr.direction }}</td>
+                        <td>{{ cdr.dialedNumber }}</td>
+                        <td>{{ cdr.startTime | date: 'yyyy/MM/dd HH:mm:ss' }}</td>
+                        <td>{{ cdr.endTime | date: 'yyyy/MM/dd HH:mm:ss'}}</td>
+                        <td>
+                            <button
+                                    pButton
+                                    class="p-button-danger p-button-outlined"
+                                    icon="pi pi-times"
+                                    [loading]="isSending"
+                                    [disabled]="isSending"
+                                    (click)="handleRemove(cdr)"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>

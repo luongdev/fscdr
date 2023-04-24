@@ -1,0 +1,7 @@
+FROM docker-registry.metechvn.com/fscdr:latest
+
+VOLUME ["/var/data/cdr", "/opt/fscdr"]
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+CMD ["java", "-jar", "/usr/local/app.jar", "${JVM_OPTS}", "--spring.profiles.active=dev"]

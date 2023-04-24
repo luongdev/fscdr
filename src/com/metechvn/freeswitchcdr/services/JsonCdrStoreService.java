@@ -11,10 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.metechvn.freeswitchcdr.utils.PrefixUtils.formatCollectionPrefix;
 
 @Service
 public class JsonCdrStoreService {
@@ -89,12 +89,36 @@ public class JsonCdrStoreService {
                     : Integer.parseInt(variables.get("end_epoch")) * 1000L;
 
             var collPrefix = formatCollectionPrefix(startEpoch);
+
             var doc = new DynamicDocument();
             doc.put("cdrId", msg.getCdrId());
             doc.put("globalCallId", msg.getGlobalCallId());
             doc.put("startEpoch", startEpoch);
             doc.put("endEpoch", endEpoch);
             doc.put("json", msg.getJson());
+            doc.put("domainName", variables.get("domain_name"));
+
+
+            var phoneNumber = variables.get("sip_h_X-Phone-Number");
+            if (StringUtils.isEmpty(phoneNumber)) {
+                phoneNumber = variables.get("phone_number");
+            }
+            doc.put("phoneNumber", phoneNumber);
+
+            var dialedNumber = variables.get("sip_h_X-Dialed-Number");
+            if (StringUtils.isEmpty(dialedNumber)) {
+                dialedNumber = variables.get("dialed_number");
+            }
+            doc.put("dialedNumber", dialedNumber);
+
+            var direction = variables.get("sip_h_X-Direction");
+            if (StringUtils.isEmpty(direction)) {
+                direction = variables.get("global_direction");
+                if (StringUtils.isEmpty(direction)) {
+                    direction = variables.get("direction");
+                }
+            }
+            doc.put("direction", direction);
 
             identifier.prefix(collPrefix).collectionName("json_cdr");
 
@@ -113,11 +137,5 @@ public class JsonCdrStoreService {
                     e.getMessage()
             );
         }
-    }
-
-    private String formatCollectionPrefix(long millis) {
-        if (millis <= 0) return "197001";
-
-        return new SimpleDateFormat("yyyyMM").format(new Date(millis));
     }
 }
