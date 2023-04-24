@@ -98,6 +98,28 @@ public class JsonCdrStoreService {
             doc.put("json", msg.getJson());
             doc.put("domainName", variables.get("domain_name"));
 
+
+            var phoneNumber = variables.get("sip_h_X-Phone-Number");
+            if (StringUtils.isEmpty(phoneNumber)) {
+                phoneNumber = variables.get("phone_number");
+            }
+            doc.put("phoneNumber", phoneNumber);
+
+            var dialedNumber = variables.get("sip_h_X-Dialed-Number");
+            if (StringUtils.isEmpty(dialedNumber)) {
+                dialedNumber = variables.get("dialed_number");
+            }
+            doc.put("dialedNumber", dialedNumber);
+
+            var direction = variables.get("sip_h_X-Direction");
+            if (StringUtils.isEmpty(direction)) {
+                direction = variables.get("global_direction");
+                if (StringUtils.isEmpty(direction)) {
+                    direction = variables.get("direction");
+                }
+            }
+            doc.put("direction", direction);
+
             identifier.prefix(collPrefix).collectionName("json_cdr");
 
             dynamicDocumentRepository.save(doc);
