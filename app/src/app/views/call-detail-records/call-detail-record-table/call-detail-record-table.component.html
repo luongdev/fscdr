@@ -1,0 +1,106 @@
+<div class="card">
+    <div class="card-body">
+        <div>
+            <p-table
+                    [rows]="25"
+                    [showCurrentPageReport]="true"
+                    [tableStyle]="{ 'min-width': '50rem' }"
+                    [rowsPerPageOptions]="[25, 50, 100]"
+                    [styleClass]="'p-datatable-sm'"
+                    [value]="primengTableHelper.records"
+                    [loading]="primengTableHelper.isLoading"
+                    [autoLayout]="true"
+                    [lazy]="true"
+                    [scrollHeight]="'70vh'"
+            >
+                <ng-template pTemplate="caption">
+                    <div class="w-100 flex align-items-center justify-between">
+                        <div class="w-100 flex align-items-center justify-between">
+                            <nz-space>
+                                <nz-select *nzSpaceItem [(ngModel)]="mode">
+                                    <nz-option nzValue="date" nzLabel="Date"></nz-option>
+                                    <nz-option nzValue="month" nzLabel="Month"></nz-option>
+                                </nz-select>
+                                <nz-date-picker
+                                        *nzSpaceItem
+                                        [nzMode]="mode"
+                                        [(ngModel)]="searchDate"
+                                        [nzDisabledDate]="nzDisableDate"
+                                        [nzShowTime]="mode === 'date'"
+                                ></nz-date-picker>
+                            </nz-space>
+                            <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton" class="w-50">
+                                <input type="text" nz-input [(ngModel)]="searchValue" (keydown.enter)="handleSearch()"/>
+                            </nz-input-group>
+                            <ng-template #suffixIconButton>
+                                <button nz-button nzType="primary" nzSearch (click)="handleSearch()">
+                                    <span nz-icon nzType="search"></span>
+                                </button>
+                            </ng-template>
+                        </div>
+                        <div class="w-100 flex align-items-center justify-content-end">
+                            <nz-badge [nzCount]="selectCount" class="mx-2">
+                                <button nz-button nzType="primary" (click)="handlePreviewClick()">
+                                    <span nz-icon nzType="phone"></span>
+                                    Calls
+                                </button>
+                            </nz-badge>
+                            <button nz-button nzDanger (click)="handleResetClick()" class="mx-2">
+                                <span nz-icon nzType="reload"></span>
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Id</th>
+                        <th>Miền</th>
+                        <th>SĐT</th>
+                        <th>Hướng</th>
+                        <th>Đầu số</th>
+                        <th>Bắt Đầu</th>
+                        <th>Kết Thúc</th>
+                        <th style="width: 5rem"></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-cdr>
+                    <tr>
+                        <td>{{ cdr.globalCallId }}</td>
+                        <td>{{ cdr.domainName }}</td>
+                        <td>{{ cdr.phoneNumber }}</td>
+                        <td>{{ cdr.direction }}</td>
+                        <td>{{ cdr.dialedNumber }}</td>
+                        <td>{{ cdr.startTime | date: 'yyyy/MM/dd HH:mm:ss' }}</td>
+                        <td>{{ cdr.endTime | date: 'yyyy/MM/dd HH:mm:ss'}}</td>
+                        <td>
+                            <button
+                                    nz-button
+                                    nzType="primary"
+                                    nzSize="small"
+                                    *ngIf="!cdr.selected"
+                                    (click)="handleClick(cdr)">
+                                <span nz-icon nzType="check"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <div class="flex primeng-paging-container mt-1">
+                <div class="font-bold">
+                    Tổng: {{(primengTableHelper.totalRecordsCount)}}
+                </div>
+                <div class="grow">
+                    <p-paginator
+                        #paginator
+                        (onPageChange)="paginate($event)"
+                        [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage"
+                        [rows]="primengTableHelper.defaultRecordsCountPerPage"
+                        [totalRecords]="primengTableHelper.totalRecordsCount">
+                    </p-paginator>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
