@@ -1,10 +1,5 @@
 FROM maven:3.8.3-openjdk-17-slim AS build
-#COPY src /usr/src/
-#COPY pom.xml /usr/src/
-#COPY app /usr/src/
-#COPY resources /usr/src/
 COPY . /usr/src/
-
 RUN mvn -f /usr/src/pom.xml clean install -P prod
 
 FROM nginx:alpine
@@ -64,4 +59,4 @@ VOLUME ["/var/data/cdr", "/opt/fscdr"]
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-CMD ["java", "-jar", "/usr/local/app.jar", "${JVM_OPTS}", "--spring.profiles.active=dev"]
+CMD ["java", "-jar", "/usr/local/app.jar", "${JVM_OPTS}"]

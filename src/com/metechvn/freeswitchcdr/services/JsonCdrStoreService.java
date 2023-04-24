@@ -44,7 +44,7 @@ public class JsonCdrStoreService {
             var variables = om.convertValue(msg.getJson().get("variables"), new TypeReference<Map<String, String>>() {
             });
 
-            if (variables == null) {
+            if (variables == null || variables.containsKey("resend")) {
                 log.error(
                         "Cannot parse json cdr variables for cdr id: {} global call id: {}",
                         msg.getCdrId(),

@@ -20,6 +20,8 @@ public class JsonCdrMessage {
         this.globalCallId = globalCallId;
 
         if (json != null) this.json.putAll(json);
+
+        this.json.put("resend", "true");
     }
 
     public String getCdrId() {
