@@ -7,7 +7,10 @@ import {CallDetailRecordList} from "@shared/models/call-detail-record/call-detai
 @Injectable({providedIn: 'root'})
 export class CallDetailRecordService {
 
-    constructor(private _http: HttpClient, private readonly configService: ConfigService) {
+    private readonly baseApiUrl: string;
+
+    constructor(private _http: HttpClient, configService: ConfigService) {
+        this.baseApiUrl = configService.baseApiUrl ?? '';
     }
 
     private readonly store = new Map<string, CallDetailRecordList>();
@@ -24,6 +27,10 @@ export class CallDetailRecordService {
 
     get(key: string) {
         return this.store.get(key);
+    }
+
+    has(key: string) {
+        return this.store.has(key);
     }
 
     get keys() {
@@ -60,11 +67,15 @@ export class CallDetailRecordService {
         if (keyword) params['keyword'] = keyword.trim();
         if (toDate) params['toDate'] = toDate;
 
-        return this._http.get<PagedResponse<CallDetailRecordList>>('/api/v1/cdr/', {params});
+        return this._http.get<PagedResponse<CallDetailRecordList>>(`${ this.baseApiUrl}/api/v1/cdr/`, {params});
     }
 
     sendCallDetailRecords(cdrs: { id: string; startTime: number }[]) {
-        return this._http.post<{ success: boolean, data: { successIds: [], errorIds: [] } }>('/api/v1/cdr/send', {cdrs});
+        return this._http.post<{ success: boolean, data: { successIds: [], errorIds: [] } }>(`${ this.baseApiUrl}/api/v1/cdr/send`, {cdrs});
+    }
+
+    changeDomain(cdr: { id: string, domainName: string; startTime: number }) {
+        return this._http.post<{ success: boolean }>(`${ this.baseApiUrl}/api/v1/cdr/change-domain`, cdr);
     }
 
 }

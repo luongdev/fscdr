@@ -12,12 +12,12 @@ public class DynamicDocument extends org.bson.Document {
 
     @Id
     @BsonId
-    private UUID id;
+    private String id;
 
     public DynamicDocument() {
-        super("_id", UUID.randomUUID());
+        super("_id", UUID.randomUUID().toString());
 
-        this.id = get("_id", UUID.class);
+        this.id = get("_id", String.class);
     }
 
     public DynamicDocument put(String key, Object value) {
@@ -31,11 +31,11 @@ public class DynamicDocument extends org.bson.Document {
         return this;
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(String id) {
         this.id = id;
     }
 

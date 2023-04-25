@@ -91,6 +91,8 @@ export class CallDetailRecordTableComponent extends ComponentBase<CallDetailReco
             currentPage, pageSize)
             .subscribe({
                 next: v => {
+                    for (const row of v.data) row.selected = this._callDetailRecordService.has(row.id);
+
                     this.primengTableHelper.records = v.data;
                     this.primengTableHelper.totalRecordsCount = v.totalRecords;
                 },

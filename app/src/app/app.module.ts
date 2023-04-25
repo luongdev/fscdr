@@ -117,8 +117,8 @@ const APP_CONTAINERS = [
         {
             provide: APP_INITIALIZER,
             useFactory: (appConfigService: ConfigService) => {
-                return () => {
-                    return appConfigService.loadAppConfig();
+                return async () => {
+                    return await appConfigService.loadAppConfig();
                 };
             },
             deps: [ConfigService],

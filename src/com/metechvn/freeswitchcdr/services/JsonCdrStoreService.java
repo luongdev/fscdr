@@ -20,7 +20,6 @@ import static com.metechvn.freeswitchcdr.utils.PrefixUtils.formatCollectionPrefi
 public class JsonCdrStoreService {
 
     private final CollectionIdentifier identifier;
-    private final DynamicDocumentRepository dynamicDocumentRepository;
 
     private final ObjectMapper om;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -30,7 +29,6 @@ public class JsonCdrStoreService {
             DynamicDocumentRepository dynamicDocumentRepository,
             ObjectMapper om) {
         this.identifier = identifier;
-        this.dynamicDocumentRepository = dynamicDocumentRepository;
         this.om = om;
     }
 
@@ -126,9 +124,8 @@ public class JsonCdrStoreService {
             }
             doc.put("direction", direction);
 
-            identifier.prefix(collPrefix).collectionName("json_cdr");
+            identifier.prefix(collPrefix).collectionName("json_cdr").template().save(doc);
 
-            dynamicDocumentRepository.save(doc);
             log.debug(
                     "Saved cdr: {} global call id: {} to mongo collection {}",
                     msg.getCdrId(),

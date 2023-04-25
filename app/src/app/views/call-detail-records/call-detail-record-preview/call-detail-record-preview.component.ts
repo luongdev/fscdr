@@ -5,13 +5,15 @@ import {DynamicDialogConfig, DynamicDialogRef} from "primeng/dynamicdialog";
 import {CallDetailRecordService} from "@shared/services/call-detail-record/call-detail-record.service";
 import {MessageService} from "primeng/api";
 
+type EditableCallDetailRecordList = CallDetailRecordList & { editing?: boolean };
+
 @Component({
     selector: 'app-call-detail-record-preview',
     templateUrl: './call-detail-record-preview.component.html',
 })
-export class CallDetailRecordPreviewComponent extends ComponentBase<CallDetailRecordList> implements OnInit {
+export class CallDetailRecordPreviewComponent extends ComponentBase<EditableCallDetailRecordList> implements OnInit {
 
-    readonly calls: CallDetailRecordList[] = [];
+    calls: EditableCallDetailRecordList[] = [];
 
     private readonly findDate: number;
 
@@ -97,12 +99,54 @@ export class CallDetailRecordPreviewComponent extends ComponentBase<CallDetailRe
     }
 
     private mapData() {
-        this.calls.length = 0;
+        this.calls = [];
         for (const key of this._callDetailRecordService.keys) {
             this.calls.push(this._callDetailRecordService.get(key));
         }
 
         this.primengTableHelper.records = this.calls;
         this.primengTableHelper.totalRecordsCount = this.calls.length;
+    }
+
+    handleDomainUpdate(cdr: any) {
+        console.log(cdr)
+    }
+
+    startEdit(cdr: EditableCallDetailRecordList) {
+        cdr.editing = true;
+    }
+
+    stopEdit(cdr: EditableCallDetailRecordList) {
+        cdr.editing = false;
+    }
+
+    updateDomain(cdr: EditableCallDetailRecordList) {
+        this.stopEdit(cdr);
+
+        this.primengTableHelper.showLoadingIndicator();
+        this._callDetailRecordService
+            .changeDomain({id: cdr.id, domainName: cdr.domainName, startTime: cdr.startTime})
+            .subscribe({
+                next: value => {
+                    if (!value?.success) {
+                        this.msgService.add({
+                            severity: 'error',
+                            summary: `Không thể update domain!`
+                        })
+                    } else {
+                        this.msgService.add({
+                            severity: 'success',
+                            summary: `Đã update domain sang ${cdr.domainName}!`
+                        })
+                    }
+                },
+                error: err => {
+                    console.error(`Cannot update domain. Error: `, err?.message);
+                    this.primengTableHelper.hideLoadingIndicator();
+                },
+                complete: () => {
+                    this.primengTableHelper.hideLoadingIndicator();
+                }
+            });
     }
 }

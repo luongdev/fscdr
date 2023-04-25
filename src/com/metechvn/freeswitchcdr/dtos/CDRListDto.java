@@ -1,14 +1,11 @@
 package com.metechvn.freeswitchcdr.dtos;
 
-import org.apache.commons.lang3.StringUtils;
-import org.bson.Document;
-
-import java.util.UUID;
+import com.metechvn.freeswitchcdr.projection.CDRListProjection;
 
 
 public class CDRListDto {
 
-    private UUID id;
+    private String id;
     private String cdrId;
     private String globalCallId;
     private String phoneNumber;
@@ -18,44 +15,19 @@ public class CDRListDto {
     private Long startTime;
     private Long endTime;
 
-    public static CDRListDto of(Document doc) {
+    public static CDRListDto of(CDRListProjection doc) {
         var dto = new CDRListDto();
         if (doc == null) return dto;
 
-        dto.id = doc.get("_id", UUID.class);
-        dto.cdrId = doc.get("cdrId", String.class);
-        dto.globalCallId = doc.get("globalCallId", String.class);
-        dto.startTime = doc.get("startEpoch", Long.class);
-        dto.endTime = doc.get("endEpoch", Long.class);
-        dto.domainName = doc.get("domainName", String.class);
-
-        var json = doc.get("json", Document.class);
-        if (json == null || !json.containsKey("variables")) return dto;
-
-        var variables = json.get("variables", Document.class);
-        if (variables == null) return dto;
-
-        if (StringUtils.isEmpty(dto.domainName)) {
-            dto.domainName = String.valueOf(variables.get("domain_name"));
-        }
-
-        dto.phoneNumber = variables.get("sip_h_X-Phone-Number", String.class);
-        if (StringUtils.isEmpty(dto.phoneNumber)) {
-            dto.phoneNumber = variables.get("phone_number", String.class);
-        }
-
-        dto.dialedNumber = variables.get("sip_h_X-Dialed-Number", String.class);
-        if (StringUtils.isEmpty(dto.dialedNumber)) {
-            dto.dialedNumber = variables.get("dialed_number", String.class);
-        }
-
-        dto.direction = variables.get("sip_h_X-Direction", String.class);
-        if (StringUtils.isEmpty(dto.direction)) {
-            dto.direction = variables.get("global_direction", String.class);
-            if (StringUtils.isEmpty(dto.direction)) {
-                dto.direction = variables.get("direction", String.class);
-            }
-        }
+        dto.id = doc.getId();
+        dto.cdrId = doc.getCdrId();
+        dto.globalCallId = doc.getGlobalCallId();
+        dto.startTime = doc.getStartEpoch();
+        dto.endTime = doc.getEndEpoch();
+        dto.domainName = doc.getDomainName();
+        dto.phoneNumber = doc.getPhoneNumber();
+        dto.dialedNumber = doc.getDialedNumber();
+        dto.direction = doc.getDirection();
 
         return dto;
     }
@@ -75,11 +47,11 @@ public class CDRListDto {
                 '}';
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(String id) {
         this.id = id;
     }
 

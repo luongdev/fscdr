@@ -1,56 +1,128 @@
-<div class="card">
-    <div class="card-body">
-        <div>
-            <p-table
-                    [tableStyle]="{ 'min-width': '50rem' }"
-                    [styleClass]="'p-datatable-sm'"
-                    [value]="primengTableHelper.records"
-                    [loading]="primengTableHelper.isLoading"
-                    [autoLayout]="true"
-                    [lazy]="true"
-                    [scrollHeight]="'58vh'"
-            >
-                <ng-template pTemplate="caption">
-                    <div class="w-100 flex align-items-center justify-content-end">
-                        <p-button
-                                label="Send"
-                                icon="pi pi-send"
-                                styleClass="mx-2 p-button-sm p-button-outlined"
-                                [disabled]="callsCount === 0 || isSending"
-                                [badge]="'' + callsCount"
-                                [loading]="isSending"
-                                (click)="handleSend()"></p-button>
-                    </div>
-                </ng-template>
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th>SĐT</th>
-                        <th>Hướng</th>
-                        <th>Đầu số</th>
-                        <th>Bắt Đầu</th>
-                        <th>Kết Thúc</th>
-                        <th style="width: 5rem"></th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-cdr>
-                    <tr>
-                        <td>{{ cdr.phoneNumber }}</td>
-                        <td>{{ cdr.direction }}</td>
-                        <td>{{ cdr.dialedNumber }}</td>
-                        <td>{{ cdr.startTime | date: 'yyyy/MM/dd HH:mm:ss' }}</td>
-                        <td>{{ cdr.endTime | date: 'yyyy/MM/dd HH:mm:ss'}}</td>
-                        <td>
-                            <button
-                                    pButton
-                                    class="p-button-danger p-button-outlined"
-                                    icon="pi pi-times"
-                                    [loading]="isSending"
-                                    [disabled]="isSending"
-                                    (click)="handleRemove(cdr)"></button>
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
-        </div>
-    </div>
+<!--<div class="card">-->
+<!--    <div class="card-body">-->
+<!--        <div>-->
+<!--            <p-table-->
+<!--                    [tableStyle]="{ 'min-width': '50rem' }"-->
+<!--                    [styleClass]="'p-datatable-sm'"-->
+<!--                    [value]="primengTableHelper.records"-->
+<!--                    [loading]="primengTableHelper.isLoading"-->
+<!--                    [autoLayout]="true"-->
+<!--                    [lazy]="true"-->
+<!--                    [scrollHeight]="'58vh'"-->
+<!--            >-->
+<!--                <ng-template pTemplate="caption">-->
+<!--                    <div class="w-100 flex align-items-center justify-content-end">-->
+<!--                        <p-button-->
+<!--                                label="Send"-->
+<!--                                icon="pi pi-send"-->
+<!--                                styleClass="mx-2 p-button-sm p-button-outlined"-->
+<!--                                [disabled]="callsCount === 0 || isSending"-->
+<!--                                [badge]="'' + callsCount"-->
+<!--                                [loading]="isSending"-->
+<!--                                (click)="handleSend()"></p-button>-->
+<!--                    </div>-->
+<!--                </ng-template>-->
+<!--                <ng-template pTemplate="header">-->
+<!--                    <tr>-->
+<!--                        <th>SĐT</th>-->
+<!--                        <th>Miền</th>-->
+<!--                        <th>Hướng</th>-->
+<!--                        <th>Đầu số</th>-->
+<!--                        <th>Bắt Đầu</th>-->
+<!--                        <th>Kết Thúc</th>-->
+<!--                        <th style="width: 5rem"></th>-->
+<!--                    </tr>-->
+<!--                </ng-template>-->
+<!--                <ng-template pTemplate="body" let-cdr let-editing="editing">-->
+<!--                    <tr [pEditableRow]="cdr">-->
+<!--                        <td>{{ cdr.phoneNumber }}</td>-->
+<!--                        <td [pEditableColumn]="cdr.domainName" pEditableColumnField="domainName">-->
+<!--                            <p-cellEditor>-->
+<!--                                <ng-template pTemplate="input">-->
+<!--                                    <input pInputText type="text"-->
+<!--                                           [(ngModel)]="cdr.domainName"-->
+<!--                                           (blur)="handleDomainUpdate(cdr)"-->
+<!--                                           (keydown.enter)="handleDomainUpdate(cdr)"-->
+<!--                                    />-->
+<!--                                </ng-template>-->
+<!--                                <ng-template pTemplate="output">-->
+<!--                                    {{ cdr.domainName }}-->
+<!--                                </ng-template>-->
+<!--                            </p-cellEditor>-->
+<!--                        </td>-->
+<!--                        <td>{{ cdr.direction }}</td>-->
+<!--                        <td>{{ cdr.dialedNumber }}</td>-->
+<!--                        <td>{{ cdr.startTime | date: 'yyyy/MM/dd HH:mm:ss' }}</td>-->
+<!--                        <td>{{ cdr.endTime | date: 'yyyy/MM/dd HH:mm:ss'}}</td>-->
+<!--                        <td>-->
+<!--                            <button-->
+<!--                                    pButton-->
+<!--                                    class="p-button-danger p-button-outlined"-->
+<!--                                    icon="pi pi-times"-->
+<!--                                    [loading]="isSending"-->
+<!--                                    [disabled]="isSending"-->
+<!--                                    (click)="handleRemove(cdr)"></button>-->
+<!--                        </td>-->
+<!--                    </tr>-->
+<!--                </ng-template>-->
+<!--            </p-table>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<br/>
+<div class="table-operations flex justify-end" style="z-index: 9999999;">
+    <nz-badge [nzCount]="callsCount" class="mx-2">
+        <button nz-button nzType="primary" [nzLoading]="isSending" [disabled]="callsCount === 0" (click)="handleSend()">
+            <span nz-icon nzType="send"></span>
+        </button>
+    </nz-badge>
 </div>
+
+<br/>
+<nz-table
+    #editRowTable
+    nzBordered
+    [nzShowPagination]="false"
+    [nzData]="calls"
+    [nzLoading]="primengTableHelper.isLoading">
+    <thead>
+    <tr>
+        <th>SĐT</th>
+        <th>Miền</th>
+        <th>Hướng</th>
+        <th>Đầu số</th>
+        <th>Bắt Đầu</th>
+        <th>Kết Thúc</th>
+        <th style="width: 5rem"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let cdr of editRowTable.data" class="editable-row">
+        <td>{{ cdr.phoneNumber }}</td>
+        <td class="">
+            <div class="editable-cell flex justify-between">
+                <span [hidden]="cdr.editing" (click)="startEdit(cdr)">{{ cdr.domainName }}</span>
+                <input *ngIf="cdr.editing" type="text" nz-input [(ngModel)]="cdr.domainName"/>
+                <button *ngIf="cdr.editing" nz-button nzType="text" (click)="updateDomain(cdr)">
+                    <span nz-icon nzType="save"></span>
+                </button>
+            </div>
+        </td>
+        <td>{{ cdr.direction }}</td>
+        <td>{{ cdr.dialedNumber }}</td>
+        <td>{{ cdr.startTime | date: 'yyyy/MM/dd HH:mm:ss' }}</td>
+        <td>{{ cdr.endTime | date: 'yyyy/MM/dd HH:mm:ss'}}</td>
+        <td class="text-center">
+            <button
+                    nz-button
+                    nzDanger
+                    [nzLoading]="isSending"
+                    [disabled]="isSending"
+                    (click)="handleRemove(cdr)">
+                <span nz-icon nzType="close"></span>
+            </button>
+        </td>
+    </tr>
+    </tbody>
+</nz-table>

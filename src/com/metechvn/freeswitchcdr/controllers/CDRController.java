@@ -2,21 +2,25 @@ package com.metechvn.freeswitchcdr.controllers;
 
 import com.metechvn.freeswitchcdr.dtos.CDRListDto;
 import com.metechvn.freeswitchcdr.dtos.CDRSendDto;
+import com.metechvn.freeswitchcdr.dtos.CDRUpdateDomainDto;
 import com.metechvn.freeswitchcdr.dtos.PagedResult;
 import com.metechvn.freeswitchcdr.messages.JsonCdrKey;
 import com.metechvn.freeswitchcdr.messages.JsonCdrMessage;
 import com.metechvn.freeswitchcdr.mongo.CollectionIdentifier;
-import com.metechvn.freeswitchcdr.repositories.JsonCdrRepository;
+import com.metechvn.freeswitchcdr.repositories.MongoTemplateRepository;
+import com.mongodb.client.model.UpdateOptions;
 import io.micrometer.common.util.StringUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.bson.*;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,24 +35,24 @@ import static com.metechvn.freeswitchcdr.utils.PrefixUtils.formatCollectionPrefi
 public class CDRController {
 
     private final CollectionIdentifier identifier;
-    private final JsonCdrRepository jsonCdrRepository;
     private final KafkaTemplate<Object, Object> kafkaTemplate;
     private final ExecutorService executorService;
     private final Lock prefixLock;
     private final int sendTimeout;
     private final String jsonCdrTopic;
 
+    @Autowired
+    MongoTemplateRepository mongoTemplateRepository;
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public CDRController(
             CollectionIdentifier identifier,
-            JsonCdrRepository jsonCdrRepository,
             KafkaTemplate<Object, Object> kafkaTemplate,
             @Qualifier("prefixLock") Lock prefixLock,
             @Value("${app.json-cdr.timeout:3}") int sendTimeout,
             @Value("#{'${app.json-cdr.topic:json_cdr}'.split(':')[0]}") String jsonCdrTopic) {
         this.identifier = identifier;
-        this.jsonCdrRepository = jsonCdrRepository;
         this.kafkaTemplate = kafkaTemplate;
         this.prefixLock = prefixLock;
         this.jsonCdrTopic = jsonCdrTopic;
@@ -64,30 +68,7 @@ public class CDRController {
             @RequestParam(name = "toDate", required = false) Long toDate,
             @RequestParam(name = "keyword", required = false) String keyword) {
         var pageable = PageRequest.of(page, size, Sort.by("startEpoch").ascending());
-        Page<Document> pagedResult;
-        var prefix = formatCollectionPrefix(fromDate);
-        identifier.prefix(prefix).collectionName("json_cdr");
-
-        log.info(
-                "Find json cdr ({}) from {} to {} keyword {}",
-                identifier.name(),
-                new Date(fromDate),
-                toDate == null ? null : new Date(toDate),
-                keyword
-        );
-
-        prefixLock.lock();
-        try {
-            if (toDate == null || toDate < fromDate) {
-                log.info("Find without toDate");
-                pagedResult = jsonCdrRepository.findBy(keyword, fromDate, pageable);
-            } else {
-                log.info("Find with toDate {}", new Date(toDate));
-                pagedResult = jsonCdrRepository.findBy(keyword, fromDate, toDate, pageable);
-            }
-        } finally {
-            prefixLock.unlock();
-        }
+        var pagedResult = mongoTemplateRepository.query(keyword, fromDate, toDate, pageable);
 
         return PagedResult.of(
                 pagedResult.stream().map(CDRListDto::of).toList(),
@@ -134,6 +115,43 @@ public class CDRController {
         };
     }
 
+    @PostMapping({"change-domain", "/change-domain"})
+    public Map<String, Object> updateDomain(@RequestBody() CDRUpdateDomainDto body) {
+        if (body == null
+                || body.getStartTime() <= 0
+                || StringUtils.isEmpty(body.getId())
+                || StringUtils.isEmpty(body.getDomainName()))
+            return new HashMap<>() {
+                {
+                    put("success", false);
+                    put("message", "Không có cuộc gọi được chọn");
+                }
+            };
+
+
+        var result = identifier
+                .prefix(formatCollectionPrefix(body.getStartTime()))
+                .collectionName("json_cdr")
+                .collection()
+                .updateOne(
+                        new Document("_id", body.getId()),
+                        new Document("$set", new Document(
+                                Map.of(
+                                        "domainName", body.getDomainName(),
+                                        "json.variables.domain_name", body.getDomainName()
+                                )
+                        )),
+                        new UpdateOptions().upsert(true)
+                );
+
+        return new HashMap<>() {
+            {
+                put("success", result.getModifiedCount() > 0);
+                put("data", result);
+            }
+        };
+    }
+
     private Callable<SendResult> sendTask(String prefix, List<CDRSendDto.Entry> entries) {
         if (StringUtils.isEmpty(prefix) || entries == null || entries.isEmpty()) return SendResult::new;
 
@@ -141,24 +159,31 @@ public class CDRController {
             var start = System.currentTimeMillis();
             var result = new SendResult();
 
+            var ids = entries.stream().map(CDRSendDto.Entry::getId).toList();
+
+
             List<Document> cdrs;
             prefixLock.lock();
             try {
                 log.debug("Lock resource(s) to waiting select cdr!");
-                cdrs = jsonCdrRepository.findAllByIdIn(entries.stream().map(CDRSendDto.Entry::getId).toList());
-                log.debug("Found {} cdr(s) with prefix {}", cdrs == null ? 0 : cdrs.size(), prefix);
+                cdrs = identifier.collectionName("json_cdr").prefix(prefix).template().find(
+                        new Query(Criteria.where("_id").in(ids)),
+                        Document.class,
+                        identifier.name()
+                );
+                log.debug("Found {} cdr(s) with prefix {}", cdrs.size(), prefix);
             } finally {
                 prefixLock.unlock();
                 log.debug("Unlock resource(s)!");
             }
 
-            if (cdrs == null || cdrs.size() == 0) return result;
+            if (cdrs.size() == 0) return result;
 
             for (var cdr : cdrs) {
                 var globalCallId = cdr.get("globalCallId", String.class);
                 var uuid = cdr.get("cdrId", String.class);
                 var json = cdr.get("json", Document.class);
-                var id = cdr.get("_id", UUID.class);
+                var id = cdr.get("_id", String.class);
 
                 try {
                     kafkaTemplate.send(new ProducerRecord<>(
@@ -190,34 +215,34 @@ public class CDRController {
     }
 
     static class SendResult {
-        private final List<UUID> successIds = new ArrayList<>();
-        private final List<UUID> errorIds = new ArrayList<>();
+        private final List<String> successIds = new ArrayList<>();
+        private final List<String> errorIds = new ArrayList<>();
 
-        public void success(UUID... ids) {
+        public void success(String... ids) {
             success(List.of(ids));
         }
 
-        public void success(Collection<UUID> ids) {
+        public void success(Collection<String> ids) {
             if (ids == null) return;
 
             this.successIds.addAll(ids);
         }
 
-        public void error(UUID... ids) {
+        public void error(String... ids) {
             error(List.of((ids)));
         }
 
-        public void error(Collection<UUID> ids) {
+        public void error(Collection<String> ids) {
             if (ids == null) return;
 
             this.errorIds.addAll(ids);
         }
 
-        public List<UUID> getSuccessIds() {
+        public List<String> getSuccessIds() {
             return successIds;
         }
 
-        public List<UUID> getErrorIds() {
+        public List<String> getErrorIds() {
             return errorIds;
         }
     }

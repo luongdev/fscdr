@@ -4,6 +4,7 @@ export interface CallDetailRecordList {
     globalCallId: string;
     phoneNumber: string;
     dialedNumber: string;
+    domainName: string;
     startTime: number;
     endTime: number;
     direction: string;

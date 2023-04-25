@@ -10,6 +10,11 @@ import {ToastModule} from "primeng/toast";
 import {CalendarModule} from "primeng/calendar";
 import {BadgeModule} from "primeng/badge";
 import {DialogModule} from "primeng/dialog";
+import {NzTableModule} from "ng-zorro-antd/table";
+import {NzInputModule} from "ng-zorro-antd/input";
+import {NzButtonModule} from "ng-zorro-antd/button";
+import {NzIconModule} from "ng-zorro-antd/icon";
+import {NzBadgeModule} from "ng-zorro-antd/badge";
 
 const PRIMENG = [
     ButtonModule,
@@ -22,13 +27,22 @@ const PRIMENG = [
     DialogModule
 ];
 
+const ANTD = [
+    NzTableModule,
+    NzInputModule,
+    NzButtonModule,
+    NzIconModule,
+    NzBadgeModule
+];
+
 @NgModule({
     declarations: [
         CallDetailRecordPreviewComponent
     ],
     imports: [
         CommonModule,
-        ...PRIMENG
+        ...PRIMENG,
+        ...ANTD
     ],
     exports: [CallDetailRecordPreviewComponent]
 })

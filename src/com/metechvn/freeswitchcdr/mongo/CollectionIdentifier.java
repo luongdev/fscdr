@@ -1,8 +1,8 @@
 package com.metechvn.freeswitchcdr.mongo;
 
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.util.StringUtils;
 
 public class CollectionIdentifier {
@@ -10,14 +10,18 @@ public class CollectionIdentifier {
     private String prefix;
     private String collectionName;
 
-    private final MongoDatabase mongoDatabase;
+    private final MongoTemplate mongoTemplate;
 
-    public CollectionIdentifier(MongoDatabase mongoDatabase) {
-        this.mongoDatabase = mongoDatabase;
+    public CollectionIdentifier(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
     }
 
     public MongoCollection<Document> collection() {
-        return mongoDatabase.getCollection(name());
+        return mongoTemplate.getCollection(name());
+    }
+
+    public MongoTemplate template() {
+        return mongoTemplate;
     }
 
     public String name() {
