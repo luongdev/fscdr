@@ -5,7 +5,10 @@ import {DynamicDialogConfig, DynamicDialogRef} from "primeng/dynamicdialog";
 import {CallDetailRecordService} from "@shared/services/call-detail-record/call-detail-record.service";
 import {MessageService} from "primeng/api";
 
-type EditableCallDetailRecordList = CallDetailRecordList & { editing?: boolean };
+type EditableCallDetailRecordList = CallDetailRecordList & {
+    directionEditing?: boolean;
+    domainEditing?: boolean;
+};
 
 @Component({
     selector: 'app-call-detail-record-preview',
@@ -37,6 +40,9 @@ export class CallDetailRecordPreviewComponent extends ComponentBase<EditableCall
     }
 
     handleRemove(cdr: CallDetailRecordList) {
+        delete cdr['domainEditing'];
+        delete cdr['directionEditing'];
+
         this._callDetailRecordService.delete(cdr.id);
 
         this.mapData();
@@ -112,16 +118,9 @@ export class CallDetailRecordPreviewComponent extends ComponentBase<EditableCall
         console.log(cdr)
     }
 
-    startEdit(cdr: EditableCallDetailRecordList) {
-        cdr.editing = true;
-    }
-
-    stopEdit(cdr: EditableCallDetailRecordList) {
-        cdr.editing = false;
-    }
 
     updateDomain(cdr: EditableCallDetailRecordList) {
-        this.stopEdit(cdr);
+        cdr.domainEditing = false;
 
         this.primengTableHelper.showLoadingIndicator();
         this._callDetailRecordService
@@ -142,6 +141,35 @@ export class CallDetailRecordPreviewComponent extends ComponentBase<EditableCall
                 },
                 error: err => {
                     console.error(`Cannot update domain. Error: `, err?.message);
+                    this.primengTableHelper.hideLoadingIndicator();
+                },
+                complete: () => {
+                    this.primengTableHelper.hideLoadingIndicator();
+                }
+            });
+    }
+
+    updateDirection(cdr: EditableCallDetailRecordList) {
+        cdr.directionEditing = false;
+        this.primengTableHelper.showLoadingIndicator();
+        this._callDetailRecordService
+            .changeDirection({id: cdr.id, direction: cdr.direction, startTime: cdr.startTime})
+            .subscribe({
+                next: value => {
+                    if (!value?.success) {
+                        this.msgService.add({
+                            severity: 'error',
+                            summary: `Không thể update direction!`
+                        })
+                    } else {
+                        this.msgService.add({
+                            severity: 'success',
+                            summary: `Đã update direction sang ${cdr.direction}!`
+                        })
+                    }
+                },
+                error: err => {
+                    console.error(`Cannot update direction. Error: `, err?.message);
                     this.primengTableHelper.hideLoadingIndicator();
                 },
                 complete: () => {

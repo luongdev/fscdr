@@ -1,10 +1,10 @@
 package com.metechvn.freeswitchcdr.dtos;
 
 
-public class CDRUpdateDomainDto {
+public class CDRUpdateDirectionDto {
 
     private String id;
-    private String domainName;
+    private String direction;
     private long startTime;
 
     public String getId() {
@@ -15,12 +15,12 @@ public class CDRUpdateDomainDto {
         this.id = id;
     }
 
-    public String getDomainName() {
-        return domainName;
+    public String getDirection() {
+        return direction;
     }
 
-    public void setDomainName(String domainName) {
-        this.domainName = domainName;
+    public void setDirection(String direction) {
+        this.direction = direction;
     }
 
     public long getStartTime() {
