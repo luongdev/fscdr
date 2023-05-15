@@ -78,4 +78,8 @@ export class CallDetailRecordService {
         return this._http.post<{ success: boolean }>(`${ this.baseApiUrl}/api/v1/cdr/change-domain`, cdr);
     }
 
+    changeDirection(cdr: { id: string, direction: string; startTime: number }) {
+        return this._http.post<{ success: boolean }>(`${ this.baseApiUrl}/api/v1/cdr/change-direction`, cdr);
+    }
+
 }

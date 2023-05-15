@@ -102,14 +102,31 @@
         <td>{{ cdr.phoneNumber }}</td>
         <td class="">
             <div class="editable-cell flex justify-between">
-                <span [hidden]="cdr.editing" (click)="startEdit(cdr)">{{ cdr.domainName }}</span>
-                <input *ngIf="cdr.editing" type="text" nz-input [(ngModel)]="cdr.domainName"/>
-                <button *ngIf="cdr.editing" nz-button nzType="text" (click)="updateDomain(cdr)">
+                <span [hidden]="cdr.domainEditing" (click)="cdr.domainEditing = true">{{ (cdr.domainName || 'Không xác định') }}</span>
+                <input *ngIf="cdr.domainEditing" type="text" nz-input [(ngModel)]="cdr.domainName"/>
+                <button *ngIf="cdr.domainEditing" nz-button nzType="text" (click)="updateDomain(cdr)">
                     <span nz-icon nzType="save"></span>
+                </button>
+                <button *ngIf="cdr.domainEditing" nz-button nzDanger nzType="text" (click)="cdr.domainEditing = false">
+                    <span nz-icon nzType="close"></span>
                 </button>
             </div>
         </td>
-        <td>{{ cdr.direction }}</td>
+        <td class="">
+            <div class="editable-cell flex justify-between align-items-center">
+                <span [hidden]="cdr.directionEditing" (click)="cdr.directionEditing = true">{{ (cdr.direction || 'Không xác định') }}</span>
+                <nz-radio-group *ngIf="cdr.directionEditing" [(ngModel)]="cdr.direction">
+                    <label nz-radio nzValue="inbound">In</label>
+                    <label nz-radio nzValue="outbound">Out</label>
+                </nz-radio-group>
+                <button *ngIf="cdr.directionEditing" nz-button nzType="text" (click)="updateDirection(cdr)">
+                    <span nz-icon nzType="save"></span>
+                </button>
+                <button *ngIf="cdr.directionEditing" nz-button nzDanger nzType="text" (click)="cdr.directionEditing = false">
+                    <span nz-icon nzType="close"></span>
+                </button>
+            </div>
+        </td>
         <td>{{ cdr.dialedNumber }}</td>
         <td>{{ cdr.startTime | date: 'yyyy/MM/dd HH:mm:ss' }}</td>
         <td>{{ cdr.endTime | date: 'yyyy/MM/dd HH:mm:ss'}}</td>

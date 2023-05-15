@@ -1,9 +1,6 @@
 package com.metechvn.freeswitchcdr.controllers;
 
-import com.metechvn.freeswitchcdr.dtos.CDRListDto;
-import com.metechvn.freeswitchcdr.dtos.CDRSendDto;
-import com.metechvn.freeswitchcdr.dtos.CDRUpdateDomainDto;
-import com.metechvn.freeswitchcdr.dtos.PagedResult;
+import com.metechvn.freeswitchcdr.dtos.*;
 import com.metechvn.freeswitchcdr.messages.JsonCdrKey;
 import com.metechvn.freeswitchcdr.messages.JsonCdrMessage;
 import com.metechvn.freeswitchcdr.mongo.CollectionIdentifier;
@@ -80,12 +77,7 @@ public class CDRController {
     @PostMapping({"send", "/send"})
     public Map<String, Object> send(@RequestBody() CDRSendDto body) throws InterruptedException, ExecutionException {
         if (body == null || body.getCdrs().isEmpty())
-            return new HashMap<>() {
-                {
-                    put("success", false);
-                    put("message", "Không có cuộc gọi được chọn");
-                }
-            };
+            return Map.of("success", false, "message", "Không có cuộc gọi được chọn");
 
         var groupedCDRs = new HashMap<String, List<CDRSendDto.Entry>>();
         for (var entry : body.getCdrs()) {
@@ -107,12 +99,7 @@ public class CDRController {
             sentResult.error(result.errorIds);
         }
 
-        return new HashMap<>() {
-            {
-                put("success", sentResult.successIds.size() > 0);
-                put("data", sentResult);
-            }
-        };
+        return Map.of("success", !sentResult.successIds.isEmpty(), "data", sentResult);
     }
 
     @PostMapping({"change-domain", "/change-domain"})
@@ -121,12 +108,7 @@ public class CDRController {
                 || body.getStartTime() <= 0
                 || StringUtils.isEmpty(body.getId())
                 || StringUtils.isEmpty(body.getDomainName()))
-            return new HashMap<>() {
-                {
-                    put("success", false);
-                    put("message", "Không có cuộc gọi được chọn");
-                }
-            };
+            return Map.of("success", false, "message", "Không có cuộc gọi được chọn");
 
 
         var result = identifier
@@ -144,12 +126,35 @@ public class CDRController {
                         new UpdateOptions().upsert(true)
                 );
 
-        return new HashMap<>() {
-            {
-                put("success", result.getModifiedCount() > 0);
-                put("data", result);
-            }
-        };
+        return Map.of("success", result.getModifiedCount() > 0, "data", result);
+    }
+
+    @PostMapping({"change-direction", "/change-direction"})
+    public Map<String, Object> updateDirection(@RequestBody() CDRUpdateDirectionDto body) {
+        if (body == null
+                || body.getStartTime() <= 0
+                || StringUtils.isEmpty(body.getId())
+                || StringUtils.isEmpty(body.getDirection()))
+            return Map.of("success", false, "message", "Không có cuộc gọi được chọn");
+
+
+        var result = identifier
+                .prefix(formatCollectionPrefix(body.getStartTime()))
+                .collectionName("json_cdr")
+                .collection()
+                .updateOne(
+                        new Document("_id", body.getId()),
+                        new Document("$set", new Document(
+                                Map.of(
+                                        "direction", body.getDirection(),
+                                        "json.variables.global_direction", body.getDirection(),
+                                        "json.variables.sip_h_X-Direction", body.getDirection()
+                                )
+                        )),
+                        new UpdateOptions().upsert(true)
+                );
+
+        return Map.of("success", result.getModifiedCount() > 0, "data", result);
     }
 
     private Callable<SendResult> sendTask(String prefix, List<CDRSendDto.Entry> entries) {
@@ -177,7 +182,7 @@ public class CDRController {
                 log.debug("Unlock resource(s)!");
             }
 
-            if (cdrs.size() == 0) return result;
+            if (cdrs.isEmpty()) return result;
 
             for (var cdr : cdrs) {
                 var globalCallId = cdr.get("globalCallId", String.class);

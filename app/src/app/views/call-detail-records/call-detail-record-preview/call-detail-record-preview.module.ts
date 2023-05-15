@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-import {CommonModule, DatePipe} from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {CallDetailRecordPreviewComponent} from './call-detail-record-preview.component';
 
 import {ButtonModule} from "primeng/button";
@@ -15,6 +15,8 @@ import {NzInputModule} from "ng-zorro-antd/input";
 import {NzButtonModule} from "ng-zorro-antd/button";
 import {NzIconModule} from "ng-zorro-antd/icon";
 import {NzBadgeModule} from "ng-zorro-antd/badge";
+import {NzSelectModule} from "ng-zorro-antd/select";
+import {NzRadioModule} from "ng-zorro-antd/radio";
 
 const PRIMENG = [
     ButtonModule,
@@ -32,7 +34,10 @@ const ANTD = [
     NzInputModule,
     NzButtonModule,
     NzIconModule,
-    NzBadgeModule
+    NzBadgeModule,
+    NzSelectModule,
+    NzRadioModule,
+
 ];
 
 @NgModule({
@@ -42,7 +47,7 @@ const ANTD = [
     imports: [
         CommonModule,
         ...PRIMENG,
-        ...ANTD
+        ...ANTD,
     ],
     exports: [CallDetailRecordPreviewComponent]
 })
